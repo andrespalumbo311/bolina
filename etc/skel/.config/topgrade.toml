@@ -18,6 +18,10 @@ only = [
 # 'uv' is managed as a formula by Homebrew.
 disable = ["node", "uv"]
 
+# Run Topgrade non-interactively without confirmation prompts or retries
+assume_yes = true
+no_retry = true
+
 [linux]
 # Enable bootc for Fedora Atomic
 bootc = true
