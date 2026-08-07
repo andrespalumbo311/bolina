@@ -136,15 +136,10 @@ jobs:
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "Scheduled daily build: Disabling layer cache (--no-cache) to fetch latest upstream Fedora packages."
             CACHE_ARGS+=("--no-cache")
-          else
-            echo "Push/PR build: Pulling build-cache layer image into local runner storage for Buildah cache hit..."
-            sudo podman pull "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:build-cache" || true
-            CACHE_ARGS+=("--cache-from" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}")
           fi
 
           # Build directly in root storage (sudo)
           sudo buildah bud \
-            --layers \
             "${LABEL_ARGS[@]}" \
             "${CACHE_ARGS[@]}" \
             --build-arg SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
@@ -156,9 +151,6 @@ jobs:
           
           # Clean up
           rm MOK.key MOK.crt
-
-          # Preserva l'immagine con layer Buildah per la cache di CI
-          sudo podman tag localhost/${{ env.IMAGE_NAME }}:latest localhost/${{ env.IMAGE_NAME }}:buildah-cache
 
           # Apply all tags from metadata with sudo
           for tag in ${{ steps.metadata.outputs.tags }}; do
@@ -200,9 +192,6 @@ jobs:
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build_image.outputs.is_dummy_key != 'true'
         id: push
         run: |
-          # Pubblica l'immagine di cache dei layer Buildah per i build successivi di CI
-          sudo skopeo copy --authfile /home/runner/.docker/config.json containers-storage:localhost/${{ env.IMAGE_NAME }}:buildah-cache docker://${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:build-cache || true
-
           # Pubblica l'immagine Chunked-OCI per la produzione (bootc)
           for tag in ${{ steps.metadata.outputs.tags }}; do
             dest_image="${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:$tag"
