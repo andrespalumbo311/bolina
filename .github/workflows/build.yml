@@ -131,7 +131,7 @@ jobs:
             CACHE_ARGS+=("--no-cache")
           else
             echo "Push/PR build: Enabling layer cache (--cache-from) for fast build times."
-            CACHE_ARGS+=("--cache-from" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest")
+            CACHE_ARGS+=("--cache-from" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}")
           fi
 
           # Build directly in root storage (sudo)
