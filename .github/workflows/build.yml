@@ -137,8 +137,9 @@ jobs:
             echo "Scheduled daily build: Disabling layer cache (--no-cache) to fetch latest upstream Fedora packages."
             CACHE_ARGS+=("--no-cache")
           else
-            echo "Push/PR build: Enabling layer cache (--cache-from) using repository base URI."
-            CACHE_ARGS+=("--cache-from" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}")
+            echo "Push/PR build: Pulling build-cache layer image into local runner storage for Buildah cache hit..."
+            sudo podman pull "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:build-cache" || true
+            CACHE_ARGS+=("--cache-from" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:build-cache")
           fi
 
           # Build directly in root storage (sudo)
