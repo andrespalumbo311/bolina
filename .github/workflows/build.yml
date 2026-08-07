@@ -139,7 +139,7 @@ jobs:
           else
             echo "Push/PR build: Pulling build-cache layer image into local runner storage for Buildah cache hit..."
             sudo podman pull "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:build-cache" || true
-            CACHE_ARGS+=("--cache-from" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:build-cache")
+            CACHE_ARGS+=("--cache-from" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}")
           fi
 
           # Build directly in root storage (sudo)
