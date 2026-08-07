@@ -12,10 +12,11 @@ L'obiettivo è ridurre drasticamente la dipendenza da repository COPR personali 
 - [ ] **Migrazione Kernel CachyOS**: Passare dai COPR personali al repository ufficiale gestito dal team di CachyOS (se disponibile per Fedora) o automatizzare il monitoraggio delle versioni ufficiali.
 
 ## 2. Automazione e Aggiornamenti
-- [ ] **Integrazione Renovate Avanzata**: Configurare Renovate per monitorare non solo i container, ma anche le versioni dei binari GitHub definiti nello stage builder.
-- [ ] **Build Condizionali**: Implementare controlli che triggerano la build solo se ci sono nuovi rilasci "upstream" (kernel o utility critiche), ottimizzando l'uso delle risorse GitHub Actions.
+- [x] **Integrazione Dependabot per Stage Builder**: Configurato Dependabot (ecosistema `dockerfile`) per monitorare e aggiornare automaticamente le versioni delle `ARG` definite nello stage builder (`Containerfile`).
+- [x] **Layer Caching Intelligente e Modularizzazione**: Implementata la suddivisione del `Containerfile` in 5 script modulari in `build_files/`, abilitando `--cache-from` per PR/push manuali e `--no-cache` per il cron giornaliero del mattino.
 
 ## 3. Ottimizzazioni e Sicurezza
+- [x] **Riproducibilità delle Build e Update OCI Ottimizzati**: Condizionato `dracut` initramfs, configurato `IMAGE_ID` via Git `SHA_HEAD_SHORT` in `/usr/lib/os-release` ed esportato `SOURCE_DATE_EPOCH` per azzerare il download di aggiornamenti ridondanti su `bootc upgrade`.
 - [ ] **Minimal Image**: Analizzare ulteriormente i pacchetti installati per rimuovere dipendenze legacy ereditate dall'immagine base Fedora, puntando a un'immagine ancora più snella e performante.
 
 ## 5. Miglioramento Esperienza di Login
