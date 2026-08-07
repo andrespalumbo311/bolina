@@ -4,12 +4,6 @@ set -eoux pipefail
 echo "=== 05: Configuring Services, Skel, Flatpak & User Segregation ==="
 mkdir -p /etc/pki/akmods/certs/
 
-if [ -d /tmp/etc ]; then
-    cp -r /tmp/etc/* /etc/
-fi
-if [ -d /tmp/usr ]; then
-    cp -r /tmp/usr/* /usr/
-fi
 if [ -f /tmp/MOK.der ]; then
     cp /tmp/MOK.der /etc/pki/akmods/certs/public_key.der
 fi

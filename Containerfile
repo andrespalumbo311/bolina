@@ -87,10 +87,10 @@ COPY --from=builder /tmp/bin/coreutils /usr/bin/uutils-coreutils
 COPY --from=builder /tmp/bin/antigravity /usr/bin/antigravity
 COPY --from=builder /tmp/fonts /usr/share/fonts/JetBrainsMono
 
-# Copia asset di build e configurazione
+# Copia asset di build e configurazione nativa
 COPY build_files /tmp/build_files
-COPY etc /tmp/etc
-COPY usr /tmp/usr
+COPY etc /etc
+COPY usr /usr
 COPY MOK.der /tmp/MOK.der
 
 # STRATO 1: Repository COPR
@@ -113,7 +113,7 @@ RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
 
 # STRATO 5: Configurazione Servizi, Flatpak, os-release e Segregazione Utenti
 RUN SHA_HEAD_SHORT="${SHA_HEAD_SHORT}" /tmp/build_files/05-system-config.sh && \
-    rm -rf /tmp/build_files /tmp/etc /tmp/usr /tmp/MOK.der
+    rm -rf /tmp/build_files /tmp/MOK.der
 
 ### LINTING
 RUN bootc container lint
