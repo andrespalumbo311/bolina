@@ -122,9 +122,14 @@ jobs:
             echo "is_dummy_key=true" >> "$GITHUB_OUTPUT"
           fi
 
+          SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          SHA_SHORT=$(git rev-parse --short HEAD)
+
           # Build directly in root storage (sudo)
           sudo buildah bud \
             "${LABEL_ARGS[@]}" \
+            --build-arg SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
+            --build-arg SHA_HEAD_SHORT="${SHA_SHORT}" \
             --secret id=MOK_key,src=MOK.key \
             --secret id=MOK_crt,src=MOK.crt \
             --tag localhost/${{ env.IMAGE_NAME }}:latest \
@@ -143,6 +148,8 @@ jobs:
       - name: Run Rechunker (Chunked-OCI)
         id: rechunk
         run: |
+          SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+
           # Pulizia /run e /tmp dall'immagine (artefatti di build)
           container=$(sudo buildah from localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }})
           mnt=$(sudo buildah mount $container)
@@ -152,6 +159,7 @@ jobs:
 
           # Esegue rpm-ostree dall'interno dell'immagine stessa per generare layer semantici
           sudo podman run --rm --privileged \
+            --env SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
             --volume /var/lib/containers:/var/lib/containers \
             localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
             rpm-ostree compose build-chunked-oci \

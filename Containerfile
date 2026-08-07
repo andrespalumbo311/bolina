@@ -1,34 +1,41 @@
 # STAGE 1: Download utility custom
 FROM ghcr.io/ublue-os/base-main:latest AS builder
 
+ARG STARSHIP_VERSION="v1.26.0"
+ARG TOPGRADE_VERSION="v17.9.0"
+ARG UUPD_VERSION="v1.4.0"
+ARG SUDO_RS_VERSION="v0.2.14"
+ARG COREUTILS_VERSION="0.10.0"
+ARG AGY_VERSION="1.1.11"
+
 # Installazione dipendenze per download e verifica
 RUN dnf install -y curl jq tar xz
 
 # Download e verifica utility (Starship, Topgrade, uupd, sudo-rs, coreutils)
 RUN mkdir -p /tmp/verify /tmp/bin && \
     # Starship
-    STARSHIP_ASSETS=$(curl -fsSL https://api.github.com/repos/starship/starship/releases/latest) && \
+    STARSHIP_ASSETS=$(curl -fsSL https://api.github.com/repos/starship/starship/releases/tags/${STARSHIP_VERSION}) && \
     STARSHIP_URL=$(echo "$STARSHIP_ASSETS" | jq -r '.assets[] | select(.name == "starship-x86_64-unknown-linux-musl.tar.gz") | .browser_download_url') && \
     STARSHIP_SHA=$(echo "$STARSHIP_ASSETS" | jq -r '.assets[] | select(.name == "starship-x86_64-unknown-linux-musl.tar.gz") | .digest' | cut -d: -f2) && \
     curl -fsSL "$STARSHIP_URL" -o /tmp/verify/starship.tar.gz && \
     echo "$STARSHIP_SHA  /tmp/verify/starship.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/starship.tar.gz starship && \
     # Topgrade
-    TOPGRADE_ASSETS=$(curl -fsSL https://api.github.com/repos/topgrade-rs/topgrade/releases/latest) && \
+    TOPGRADE_ASSETS=$(curl -fsSL https://api.github.com/repos/topgrade-rs/topgrade/releases/tags/${TOPGRADE_VERSION}) && \
     TOPGRADE_URL=$(echo "$TOPGRADE_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-musl.tar.gz")) | .browser_download_url') && \
     TOPGRADE_SHA=$(echo "$TOPGRADE_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-musl.tar.gz")) | .digest' | cut -d: -f2) && \
     curl -fsSL "$TOPGRADE_URL" -o /tmp/verify/topgrade.tar.gz && \
     echo "$TOPGRADE_SHA  /tmp/verify/topgrade.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/topgrade.tar.gz topgrade && \
     # uupd
-    UUPD_ASSETS=$(curl -fsSL https://api.github.com/repos/ublue-os/uupd/releases/latest) && \
+    UUPD_ASSETS=$(curl -fsSL https://api.github.com/repos/ublue-os/uupd/releases/tags/${UUPD_VERSION}) && \
     UUPD_URL=$(echo "$UUPD_ASSETS" | jq -r '.assets[] | select(.name == "uupd_Linux_x86_64.tar.gz") | .browser_download_url') && \
     UUPD_SHA=$(echo "$UUPD_ASSETS" | jq -r '.assets[] | select(.name == "uupd_Linux_x86_64.tar.gz") | .digest' | cut -d: -f2) && \
     curl -fsSL "$UUPD_URL" -o /tmp/verify/uupd.tar.gz && \
     echo "$UUPD_SHA  /tmp/verify/uupd.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/uupd.tar.gz uupd && \
     # sudo-rs
-    SUDO_RS_ASSETS=$(curl -fsSL https://api.github.com/repos/trifectatechfoundation/sudo-rs/releases/latest) && \
+    SUDO_RS_ASSETS=$(curl -fsSL https://api.github.com/repos/trifectatechfoundation/sudo-rs/releases/tags/${SUDO_RS_VERSION}) && \
     SUDO_RS_URL=$(echo "$SUDO_RS_ASSETS" | jq -r '.assets[] | select(.name | startswith("sudo-") and endswith(".tar.gz")) | .browser_download_url' | head -n 1) && \
     SUDO_RS_SHA=$(echo "$SUDO_RS_ASSETS" | jq -r '.assets[] | select(.name | startswith("sudo-") and endswith(".tar.gz")) | .digest' | cut -d: -f2 | head -n 1) && \
     curl -fsSL "$SUDO_RS_URL" -o /tmp/verify/sudo.tar.gz && \
@@ -40,14 +47,14 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     echo "$SU_RS_SHA  /tmp/verify/su.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/su.tar.gz --strip-components=1 && \
     # coreutils (uutils)
-    COREUTILS_ASSETS=$(curl -fsSL https://api.github.com/repos/uutils/coreutils/releases/latest) && \
+    COREUTILS_ASSETS=$(curl -fsSL https://api.github.com/repos/uutils/coreutils/releases/tags/${COREUTILS_VERSION}) && \
     COREUTILS_URL=$(echo "$COREUTILS_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-gnu.tar.gz")) | .browser_download_url') && \
     COREUTILS_SHA=$(echo "$COREUTILS_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-gnu.tar.gz")) | .digest' | cut -d: -f2) && \
     curl -fsSL "$COREUTILS_URL" -o /tmp/verify/coreutils.tar.gz && \
     echo "$COREUTILS_SHA  /tmp/verify/coreutils.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/coreutils.tar.gz --strip-components=1 && \
     # antigravity-cli
-    AGY_ASSETS=$(curl -fsSL https://api.github.com/repos/google-antigravity/antigravity-cli/releases/latest) && \
+    AGY_ASSETS=$(curl -fsSL https://api.github.com/repos/google-antigravity/antigravity-cli/releases/tags/${AGY_VERSION}) && \
     AGY_URL=$(echo "$AGY_ASSETS" | jq -r '.assets[] | select(.name == "agy_cli_linux_x64.tar.gz") | .browser_download_url') && \
     AGY_SHA=$(echo "$AGY_ASSETS" | jq -r '.assets[] | select(.name == "agy_cli_linux_x64.tar.gz") | .digest' | cut -d: -f2) && \
     curl -fsSL "$AGY_URL" -o /tmp/verify/agy.tar.gz && \
@@ -64,6 +71,9 @@ RUN mkdir -p /tmp/verify /tmp/fonts && \
 
 # STAGE 2: Immagine Finale
 FROM ghcr.io/ublue-os/base-main:latest
+
+ARG SHA_HEAD_SHORT=unknown
+ARG SOURCE_DATE_EPOCH=1700000000
 
 # Copia dei binari custom dallo stage di build
 COPY --from=builder /tmp/bin/starship /usr/bin/starship
@@ -114,8 +124,11 @@ RUN --mount=type=secret,id=MOK_key \
     chmod 4755 /usr/bin/sudo-rs /usr/bin/su-rs && \
     KVER=$(ls /lib/modules | grep cachyos | head -n 1) && \
     depmod -a $KVER && \
-    dracut --kver $KVER --no-hostonly --reproducible --add ostree --force /lib/modules/$KVER/initramfs.img && \
-    chmod 0600 /lib/modules/$KVER/initramfs.img && \
+    if [ ! -f /lib/modules/$KVER/initramfs.img ]; then \
+        export SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-1700000000}; \
+        dracut --kver $KVER --no-hostonly --reproducible --add ostree --force /lib/modules/$KVER/initramfs.img; \
+        chmod 0600 /lib/modules/$KVER/initramfs.img; \
+    fi && \
     sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz && \
     # Pulizia post-installazione per bootc lint
     rm -rf /boot/* /tmp/bin && \
@@ -189,7 +202,11 @@ RUN flatpak remote-delete valent || true && \
     flatpak remote-add --if-not-exists --system valent /etc/flatpak/remotes.d/valent.flatpakrepo && \
     flatpak update --appstream valent && \
     # Configurazione ID immagine per prevenire kernel panic da ibernazione obsoleta post-upgrade
-    echo "IMAGE_ID=\"myublue-\$(date +%Y%m%d)\"" >> /usr/lib/os-release && \
+    if [ "$SHA_HEAD_SHORT" != "unknown" ] && [ -n "$SHA_HEAD_SHORT" ]; then \
+        echo "IMAGE_ID=\"myublue-${SHA_HEAD_SHORT}\"" >> /usr/lib/os-release; \
+    else \
+        echo "IMAGE_ID=\"myublue-\$(date +%Y%m%d)\"" >> /usr/lib/os-release; \
+    fi && \
     # Segregazione passwd/group in usr/lib per prevenire conflitti ostree/bootc ad ogni upgrade
     if [ -f /etc/passwd ]; then \
         out=$(grep -v "root" /etc/passwd) || true; \
