@@ -1,4 +1,5 @@
 # STAGE 1: Download utility custom
+# Test build layer caching performance
 FROM ghcr.io/ublue-os/base-main:latest AS builder
 
 ARG STARSHIP_VERSION="v1.26.0"
