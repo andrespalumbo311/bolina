@@ -87,143 +87,33 @@ COPY --from=builder /tmp/bin/coreutils /usr/bin/uutils-coreutils
 COPY --from=builder /tmp/bin/antigravity /usr/bin/antigravity
 COPY --from=builder /tmp/fonts /usr/share/fonts/JetBrainsMono
 
-# STRATO 1: Repository COPR (Manteniamo per ananicy-cpp e altri tool)
-RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
-    dnf5 -y copr enable yalter/niri && \
-    dnf5 -y copr enable avengemedia/dms && \
-    dnf5 -y copr enable avengemedia/danklinux && \
-    dnf5 -y copr enable bieszczaders/kernel-cachyos-addons && \
-    dnf5 -y copr enable bieszczaders/kernel-cachyos-lto && \
-    dnf5 -y copr enable dejan/rpms && \
-    dnf5 clean all
+# Copia asset di build e configurazione
+COPY build_files /tmp/build_files
+COPY etc /tmp/etc
+COPY usr /tmp/usr
+COPY MOK.der /tmp/MOK.der
 
-# SWAP KERNEL E UTILITY RUST + FIRMA SECUREBOOT
+# STRATO 1: Repository COPR
+RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
+    /tmp/build_files/01-copr.sh
+
+# STRATO 2: Swap Kernel CachyOS & Firma SecureBoot
 RUN --mount=type=secret,id=MOK_key \
     --mount=type=secret,id=MOK_crt \
     --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
-    mkdir -p /etc/kernel && \
-    echo "initrd_generator=none" > /etc/kernel/install.conf && \
-    # Rimozione kernel stock e pulizia moduli per evitare duplicati nel linting
-    dnf5 -y --setopt=protected_packages= remove kernel kernel-core kernel-modules kernel-modules-extra && \
-    rm -rf /usr/lib/modules/* && \
-    # Mocking GRUB per evitare errori in ambiente container durante l'installazione del kernel
-    mkdir -p /tmp/bin && \
-    echo -e '#!/bin/sh\nexit 0' > /tmp/bin/grub2-probe && \
-    echo -e '#!/bin/sh\nexit 0' > /tmp/bin/grub2-editenv && \
-    chmod +x /tmp/bin/grub2-probe /tmp/bin/grub2-editenv && \
-    # Installazione Kernel CachyOS con PATH override per i mock
-    PATH=/tmp/bin:$PATH dnf5 -y --setopt=protected_packages= install \
-        kernel-cachyos-lto sbsigntools \
-        --allowerasing && \
-    rm /etc/kernel/install.conf && \
-    # Configurazione SUDO-RS (Source Sovereignty)
-    ln -sf /usr/bin/sudo-rs /usr/bin/sudo && \
-    ln -sf /usr/bin/visudo-rs /usr/bin/visudo && \
-    ln -sf /usr/bin/sudoedit-rs /usr/bin/sudoedit && \
-    chown root:root /usr/bin/sudo-rs /usr/bin/su-rs && \
-    chmod 4755 /usr/bin/sudo-rs /usr/bin/su-rs && \
-    KVER=$(ls /lib/modules | grep cachyos | head -n 1) && \
-    depmod -a $KVER && \
-    if [ ! -f /lib/modules/$KVER/initramfs.img ]; then \
-        export SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-1700000000}; \
-        dracut --kver $KVER --no-hostonly --reproducible --add ostree --force /lib/modules/$KVER/initramfs.img; \
-        chmod 0600 /lib/modules/$KVER/initramfs.img; \
-    fi && \
-    sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz && \
-    # Pulizia post-installazione per bootc lint
-    rm -rf /boot/* /tmp/bin && \
-    setsebool -P domain_kernel_load_modules on && \
-    dnf5 -y copr disable bieszczaders/kernel-cachyos-lto && \
-    dnf5 -y copr disable dejan/rpms && \
-    dnf5 clean all
+    SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" /tmp/build_files/02-kernel.sh
 
-
-# STRATO 2: Utilità CLI e System Tooling
+# STRATO 3: Utilità CLI e System Tooling
 RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
-    dnf5 install -y \
-    git tailscale \
-    inotify-tools powertop power-profiles-daemon freerdp \
-    scx-scheds scx-tools scx-manager flatpak udisks2 \
-    python3-pyqt6 \
-    parted dosfstools exfatprogs e2fsprogs \
-    fish zoxide fzf \
-    fuse fuse-libs && \
-    sed -i 's|SHELL=/bin/bash|SHELL=/usr/bin/fish|' /etc/default/useradd && \
-    # Ottimizzazione I/O (ADIOS) - Sintassi Origami OS con deviazione MicroSD su bfq
-    echo 'ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' > /etc/udev/rules.d/60-ioschedulers.rules && \
-    echo 'ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="adios"' >> /etc/udev/rules.d/60-ioschedulers.rules && \
-    echo 'ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="adios"' >> /etc/udev/rules.d/60-ioschedulers.rules && \
-    echo 'ACTION=="add|change", KERNEL=="mmcblk[0-9]*", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="bfq"' >> /etc/udev/rules.d/60-ioschedulers.rules && \
-    dnf5 clean all
+    /tmp/build_files/03-cli-packages.sh
 
-# Installazione plugin Bass (per compatibilità script Bash in Fish)
-RUN git clone https://github.com/edc/bass.git /tmp/bass && \
-    mkdir -p /usr/share/fish/vendor_functions.d && \
-    cp /tmp/bass/functions/bass.fish /usr/share/fish/vendor_functions.d/ && \
-    rm -rf /tmp/bass
-
-# STRATO 3: Ambiente Grafico e Utility
+# STRATO 4: Ambiente Grafico, Wayland e Audio
 RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
-    dnf5 install -y \
-    niri dms dms-greeter \
-    xdg-desktop-portal-wlr \
-    greetd fprintd fprintd-pam \
-    brightnessctl grim slurp \
-    pavucontrol kitty pamixer \
-    libva-intel-media-driver libva-utils \
-    scx-manager python3-pyqt6 \
-    easyeffects lsp-plugins \
-    nautilus gvfs-mtp gvfs-smb \
-    gnome-keyring gnome-keyring-pam \
-    cups-pk-helper kf6-kimageformats qt6-qtimageformats \
-    accountsservice \
-    xdg-desktop-portal-gnome xdg-desktop-portal-gtk xdg-user-dirs-gtk && \
-    dnf5 remove -y swaybg swaylock swayidle cliphist fuzzel mako dunst || true && \
-    dnf5 clean all
+    /tmp/build_files/04-desktop-packages.sh
 
-# STRATO 4: Configurazione servizi e finalizzazione
-RUN mkdir -p /etc/pki/akmods/certs/
-COPY etc /etc
-COPY usr /usr
-COPY MOK.der /etc/pki/akmods/certs/public_key.der
-RUN if id "greetd" &>/dev/null; then \
-    usermod -aG video,render,tty,input greetd && \
-    chown -R greetd:greetd /etc/greetd/dms-greeter && \
-    chown -R greetd:greetd /etc/greetd/niri; \
-fi && \
-chmod +x /etc/skel/.config/niri/scripts/*.sh && \
-    dconf update && \
-    systemctl enable tailscaled.service greetd.service uupd.timer scx.service scx_loader.service power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service && \
-    systemctl --global enable easyeffects.service taildrop-auto-receive.service tailscale-systray.service && \
-    systemctl disable rpm-ostreed-automatic.timer
-
-# STRATO 5: Inizializzazione Flatpak, Valent e Finalizzazione
-RUN flatpak remote-delete valent || true && \
-    flatpak remote-add --if-not-exists --system valent /etc/flatpak/remotes.d/valent.flatpakrepo && \
-    flatpak update --appstream valent && \
-    # Configurazione ID immagine per prevenire kernel panic da ibernazione obsoleta post-upgrade
-    if [ "$SHA_HEAD_SHORT" != "unknown" ] && [ -n "$SHA_HEAD_SHORT" ]; then \
-        echo "IMAGE_ID=\"myublue-${SHA_HEAD_SHORT}\"" >> /usr/lib/os-release; \
-    else \
-        echo "IMAGE_ID=\"myublue-\$(date +%Y%m%d)\"" >> /usr/lib/os-release; \
-    fi && \
-    # Segregazione passwd/group in usr/lib per prevenire conflitti ostree/bootc ad ogni upgrade
-    if [ -f /etc/passwd ]; then \
-        out=$(grep -v "root" /etc/passwd) || true; \
-        if [ -n "$out" ]; then \
-            echo "$out" >> /usr/lib/passwd; \
-            echo "root:x:0:0:root:/root:/bin/bash" > /etc/passwd; \
-        fi; \
-    fi && \
-    if [ -f /etc/group ]; then \
-        out=$(grep -v "root\|wheel" /etc/group) || true; \
-        if [ -n "$out" ]; then \
-            echo "$out" >> /usr/lib/group; \
-            echo "root:x:0:" > /etc/group; \
-            echo "wheel:x:10:" >> /etc/group; \
-        fi; \
-    fi
+# STRATO 5: Configurazione Servizi, Flatpak, os-release e Segregazione Utenti
+RUN SHA_HEAD_SHORT="${SHA_HEAD_SHORT}" /tmp/build_files/05-system-config.sh && \
+    rm -rf /tmp/build_files /tmp/etc /tmp/usr /tmp/MOK.der
 
 ### LINTING
 RUN bootc container lint
-

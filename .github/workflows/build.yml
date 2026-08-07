@@ -125,9 +125,19 @@ jobs:
           SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
           SHA_SHORT=$(git rev-parse --short HEAD)
 
+          CACHE_ARGS=()
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "Scheduled daily build: Disabling layer cache (--no-cache) to fetch latest upstream Fedora packages."
+            CACHE_ARGS+=("--no-cache")
+          else
+            echo "Push/PR build: Enabling layer cache (--cache-from) for fast build times."
+            CACHE_ARGS+=("--cache-from" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest")
+          fi
+
           # Build directly in root storage (sudo)
           sudo buildah bud \
             "${LABEL_ARGS[@]}" \
+            "${CACHE_ARGS[@]}" \
             --build-arg SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
             --build-arg SHA_HEAD_SHORT="${SHA_SHORT}" \
             --secret id=MOK_key,src=MOK.key \
