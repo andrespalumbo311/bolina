@@ -144,6 +144,7 @@ jobs:
 
           # Build directly in root storage (sudo)
           sudo buildah bud \
+            --layers \
             "${LABEL_ARGS[@]}" \
             "${CACHE_ARGS[@]}" \
             --build-arg SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
