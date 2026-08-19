@@ -15,6 +15,7 @@ dnf5 install -y \
     gnome-keyring gnome-keyring-pam \
     cups-pk-helper kf6-kimageformats qt6-qtimageformats \
     accountsservice \
+    jstest-gtk joystick \
     xdg-desktop-portal-gnome xdg-desktop-portal-gtk xdg-user-dirs-gtk
 
 dnf5 remove -y swaybg swaylock swayidle cliphist fuzzel mako dunst || true
