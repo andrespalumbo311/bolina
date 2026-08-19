@@ -49,3 +49,6 @@ if [ -f /etc/group ]; then
         echo "wheel:x:10:" >> /etc/group
     fi
 fi
+
+dnf5 clean all
+

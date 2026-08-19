@@ -19,4 +19,3 @@ dnf5 install -y \
     xdg-desktop-portal-gnome xdg-desktop-portal-gtk xdg-user-dirs-gtk
 
 dnf5 remove -y swaybg swaylock swayidle cliphist fuzzel mako dunst || true
-dnf5 clean all

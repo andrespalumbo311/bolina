@@ -47,4 +47,3 @@ rm -rf /boot/* /tmp/bin
 setsebool -P domain_kernel_load_modules on || true
 dnf5 -y copr disable bieszczaders/kernel-cachyos-lto || true
 dnf5 -y copr disable dejan/rpms || true
-dnf5 clean all

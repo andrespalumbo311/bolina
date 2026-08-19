@@ -8,4 +8,3 @@ dnf5 -y copr enable avengemedia/danklinux
 dnf5 -y copr enable bieszczaders/kernel-cachyos-addons
 dnf5 -y copr enable bieszczaders/kernel-cachyos-lto
 dnf5 -y copr enable dejan/rpms
-dnf5 clean all

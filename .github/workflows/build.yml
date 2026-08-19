@@ -27,6 +27,7 @@ env:
   IMAGE_NAME: "${{ github.event.repository.name }}"  # output image name, usually same as repo name
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
   DEFAULT_TAG: "latest"
+  STORAGE_DRIVER: "overlay"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.brand_name}}-${{ inputs.stream_name }}
@@ -105,6 +106,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Container Storage & Host Diagnostics
+        run: |
+          echo "=== BUILDAH DRIVER ==="
+          sudo buildah info | grep -i driverName || true
+          echo "=== PODMAN DRIVER ==="
+          sudo podman info | grep -i graphDriverName || true
 
       - name: Build Image
         id: build_image
