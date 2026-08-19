@@ -17,7 +17,7 @@ fi
 chmod +x /etc/skel/.config/niri/scripts/*.sh || true
 dconf update || true
 
-systemctl enable tailscaled.service greetd.service uupd.timer scx.service scx_loader.service power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service || true
+systemctl enable tailscaled.service greetd.service uupd.timer power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service || true
 systemctl --global enable easyeffects.service taildrop-auto-receive.service tailscale-systray.service || true
 systemctl disable rpm-ostreed-automatic.timer || true
 
