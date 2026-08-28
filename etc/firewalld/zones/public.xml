@@ -6,5 +6,6 @@
   <service name="mdns"/>
   <service name="kdeconnect"/>
   <port port="7236" protocol="tcp"/>
+  <interface name="tailscale0"/>
   <forward/>
 </zone>

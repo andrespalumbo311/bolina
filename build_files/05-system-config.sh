@@ -21,10 +21,6 @@ systemctl enable tailscaled.service greetd.service uupd.timer power-profiles-dae
 systemctl --global enable easyeffects.service taildrop-auto-receive.service tailscale-systray.service || true
 systemctl disable rpm-ostreed-automatic.timer || true
 
-flatpak remote-delete valent || true
-flatpak remote-add --if-not-exists --system valent /etc/flatpak/remotes.d/valent.flatpakrepo || true
-flatpak update --appstream valent || true
-
 # Configurazione ID immagine per prevenire kernel panic da ibernazione obsoleta post-upgrade
 if [ "${SHA_HEAD_SHORT:-unknown}" != "unknown" ] && [ -n "${SHA_HEAD_SHORT:-}" ]; then
     echo "IMAGE_ID=\"myublue-${SHA_HEAD_SHORT}\"" >> /usr/lib/os-release
