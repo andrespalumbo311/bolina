@@ -1,2 +1,3 @@
 [Context]
-talk-name=org.freedesktop.portal.RemoteDesktop;org.freedesktop.portal.ScreenCast;
+devices=all
+talk-name=org.freedesktop.portal.RemoteDesktop;org.freedesktop.portal.ScreenCast;org.freedesktop.portal.InputCapture;
