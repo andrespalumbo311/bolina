@@ -8,6 +8,9 @@ This repository has a rigid structure based on Fedora Atomic and containerized b
 3. **Technical Abstraction:** Errors must be documented in a **general and abstract form**. Describe the underlying technical logic (e.g., "Flatpak remote metadata caching") so the solution acts as a reusable pattern for any similar scenario in the project.
 4. **Live Session Validation:** For any changes affecting graphical sessions, portals, or user-level services, the agent **must** perform live validation (e.g., using `busctl`, `systemctl --user`, or `gsettings`) to confirm the backend is active and exposing the correct interfaces *before* committing.
 
+## Active Verification Reminders (Temporary / AI Action Items)
+- [ ] **Verify Renovate Bot Execution**: During the next interaction with the user, verify that Renovate Bot is active on GitHub, correctly scanning `Containerfile` annotations (`# renovate: datasource=github-releases`), and opening PRs when new release versions (like `antigravity-cli`, `sudo-rs`, etc.) are published. Inform the user of the status.
+
 ## Historical Errors & Prevention
 
 | Error Class / Technical Challenge | Root Cause (Abstract) | Preventive Action / Architectural Pattern |
