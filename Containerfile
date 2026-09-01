@@ -2,12 +2,18 @@
 # Verify layer cache performance on GHCR build-cache tag
 FROM ghcr.io/ublue-os/base-main:latest AS builder
 
+# renovate: datasource=github-releases depName=starship/starship
 ARG STARSHIP_VERSION="v1.26.0"
+# renovate: datasource=github-releases depName=topgrade-rs/topgrade
 ARG TOPGRADE_VERSION="v17.9.0"
+# renovate: datasource=github-releases depName=ublue-os/uupd
 ARG UUPD_VERSION="v1.4.0"
-ARG SUDO_RS_VERSION="v0.2.14"
-ARG COREUTILS_VERSION="0.10.0"
-ARG AGY_VERSION="1.1.11"
+# renovate: datasource=github-releases depName=trifectatechfoundation/sudo-rs
+ARG SUDO_RS_VERSION="v0.2.15"
+# renovate: datasource=github-releases depName=uutils/coreutils
+ARG COREUTILS_VERSION="0.11.0"
+# renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
+ARG AGY_VERSION="1.1.23"
 
 # Installazione dipendenze per download e verifica
 RUN dnf install -y curl jq tar xz

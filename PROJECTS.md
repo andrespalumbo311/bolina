@@ -12,7 +12,7 @@ L'obiettivo è ridurre drasticamente la dipendenza da repository COPR personali 
 - [ ] **Migrazione Kernel CachyOS**: Passare dai COPR personali al repository ufficiale gestito dal team di CachyOS (se disponibile per Fedora) o automatizzare il monitoraggio delle versioni ufficiali.
 
 ## 2. Automazione e Aggiornamenti
-- [x] **Integrazione Dependabot per Stage Builder**: Configurato Dependabot (ecosistema `dockerfile`) per monitorare e aggiornare automaticamente le versioni delle `ARG` definite nello stage builder (`Containerfile`).
+- [x] **Integrazione Renovate Bot per Stage Builder**: Configurato Renovate Bot (`renovate.json5` e annotazioni `# renovate:`) per monitorare e aggiornare automaticamente le versioni delle `ARG` definite nello stage builder (`Containerfile`).
 - [x] **Layer Caching Intelligente e Modularizzazione**: Implementata la suddivisione del `Containerfile` in 5 script modulari in `build_files/`, abilitando `--cache-from` per PR/push manuali e `--no-cache` per il cron giornaliero del mattino.
 
 ## 3. Ottimizzazioni e Sicurezza

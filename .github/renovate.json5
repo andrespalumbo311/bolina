@@ -6,6 +6,17 @@
 
   "rebaseWhen": "never",
 
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^Containerfile$", "(^|/)Dockerfile$"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?)(?: depName=(?<depName>.*?))?\\s+ARG (?<packageName>.*?)_VERSION=\"(?<currentValue>.*?)\""
+      ],
+      "datasourceTemplate": "github-releases"
+    }
+  ],
+
   "packageRules": [
     {
       "automerge": true,
