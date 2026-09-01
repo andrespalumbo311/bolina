@@ -22,6 +22,13 @@ systemctl --global enable easyeffects.service taildrop-auto-receive.service || t
 systemctl disable rpm-ostreed-automatic.timer || true
 
 # Configurazione ID immagine per prevenire kernel panic da ibernazione obsoleta post-upgrade
+# Pulizia preventiva da byte nulli e righe IMAGE_ID preesistenti in /usr/lib/os-release
+sed -i '/^IMAGE_ID=/d' /usr/lib/os-release || true
+tmp_os_rel=$(mktemp)
+tr -d '\000' < /usr/lib/os-release > "$tmp_os_rel"
+cat "$tmp_os_rel" > /usr/lib/os-release
+rm -f "$tmp_os_rel"
+
 if [ "${SHA_HEAD_SHORT:-unknown}" != "unknown" ] && [ -n "${SHA_HEAD_SHORT:-}" ]; then
     echo "IMAGE_ID=\"myublue-${SHA_HEAD_SHORT}\"" >> /usr/lib/os-release
 else
