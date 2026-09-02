@@ -4,7 +4,7 @@
     "config:best-practices",
   ],
 
-  rebaseWhen: 'never',
+  rebaseWhen: 'auto',
   automerge: true,
   platformAutomerge: true,
   prHourlyLimit: 0,
