@@ -13,7 +13,7 @@ ARG SUDO_RS_VERSION="v0.2.15"
 # renovate: datasource=github-releases depName=uutils/coreutils
 ARG COREUTILS_VERSION="0.11.0"
 # renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
-ARG AGY_VERSION="1.1.23"
+ARG AGY_VERSION="1.1.24"
 
 # Installazione dipendenze per download e verifica
 RUN dnf install -y curl jq tar xz
