@@ -4,29 +4,41 @@
     "config:best-practices",
   ],
 
-  "rebaseWhen": "never",
+  rebaseWhen: 'never',
+  automerge: true,
+  platformAutomerge: true,
+  prHourlyLimit: 0,
+  prConcurrentLimit: 0,
 
-  "customManagers": [
+  customManagers: [
     {
-      "customType": "regex",
-      "fileMatch": ["^Containerfile$", "(^|/)Dockerfile$"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>.*?)(?: depName=(?<depName>.*?))?\\s+ARG (?<packageName>.*?)_VERSION=\"(?<currentValue>.*?)\""
+      customType: 'regex',
+      managerFilePatterns: [
+        '/^Containerfile$/',
+        '/(^|/)Dockerfile$/',
       ],
-      "datasourceTemplate": "github-releases"
-    }
+      matchStrings: [
+        '# renovate: datasource=(?<datasource>[^\\s]+)(?: depName=(?<depName>[^\\s]+))?\\s+ARG [A-Za-z0-9_]+_VERSION="(?<currentValue>.*?)"',
+      ],
+      datasourceTemplate: 'github-releases',
+    },
   ],
 
-  "packageRules": [
+  packageRules: [
     {
-      "automerge": true,
-      "matchUpdateTypes": ["pin", "pinDigest"]
+      enabled: false,
+      matchUpdateTypes: [
+        'digest',
+        'pinDigest',
+        'pin',
+      ],
+      matchDepTypes: [
+        'container',
+      ],
+      matchFileNames: [
+        '.github/workflows/**.yaml',
+        '.github/workflows/**.yml',
+      ],
     },
-    {
-      "enabled": false,
-      "matchUpdateTypes": ["digest", "pinDigest", "pin"],
-      "matchDepTypes": ["container"],
-      "matchFileNames": [".github/workflows/**.yaml", ".github/workflows/**.yml"],
-    },
-  ]
+  ],
 }
