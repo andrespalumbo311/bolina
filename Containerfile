@@ -1,6 +1,6 @@
 # STAGE 1: Download utility custom
 # Verify layer cache performance on GHCR build-cache tag
-FROM ghcr.io/ublue-os/base-main:latest AS builder
+FROM ghcr.io/ublue-os/base-main:latest@sha256:0493d47dd760194a69bf9de1d2a4173fea2bf5bcae4b6429a1cff892ee1269ae AS builder
 
 # renovate: datasource=github-releases depName=starship/starship
 ARG STARSHIP_VERSION="v1.26.0"
@@ -77,7 +77,7 @@ RUN mkdir -p /tmp/verify /tmp/fonts && \
     rm -rf /tmp/verify
 
 # STAGE 2: Immagine Finale
-FROM ghcr.io/ublue-os/base-main:latest
+FROM ghcr.io/ublue-os/base-main:latest@sha256:0493d47dd760194a69bf9de1d2a4173fea2bf5bcae4b6429a1cff892ee1269ae
 
 ARG SHA_HEAD_SHORT=unknown
 ARG SOURCE_DATE_EPOCH=1700000000
