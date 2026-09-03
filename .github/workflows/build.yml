@@ -4,6 +4,17 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '**/README.md'
+      - 'AGENTS.md'
+      - 'CONTRIBUTING.md'
+      - 'docs/**'
+      - 'PROJECTS.md'
+      - 'LICENSE'
+      - 'artifacthub-repo.yml'
+      - '.gitignore'
+      - '.github/dependabot.yml'
+      - '.github/renovate.json5'
   schedule:
     - cron: '05 10 * * *'  # 10:05am UTC everyday
   push:
@@ -11,7 +22,9 @@ on:
       - main
     paths-ignore:
       - '**/README.md'
+      - 'AGENTS.md'
       - 'CONTRIBUTING.md'
+      - 'docs/**'
       - 'PROJECTS.md'
       - 'LICENSE'
       - 'artifacthub-repo.yml'
