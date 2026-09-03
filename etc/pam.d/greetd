@@ -1,6 +1,12 @@
 #%PAM-1.0
-auth       required     pam_permit.so
-account    required     pam_permit.so
+auth       [success=done default=ignore] pam_succeed_if.so user = greetd
+auth       substack     system-auth
+auth       optional     pam_gnome_keyring.so
+auth       include      postlogin
+
+account    [success=done default=ignore] pam_succeed_if.so user = greetd
+account    required     pam_nologin.so
+account    include      system-auth
 password   include      system-auth
 session    required     pam_selinux.so close
 session    required     pam_loginuid.so

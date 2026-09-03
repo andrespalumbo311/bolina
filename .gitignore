@@ -1,4 +1,6 @@
 cosign.key
+MOK.key
+MOK.crt
 _build_*
 output
 _build-*/**

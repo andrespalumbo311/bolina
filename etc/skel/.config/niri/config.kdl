@@ -307,7 +307,7 @@ binds {
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Return hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
     Mod+Space hotkey-overlay-title="Run an Application: DMS Launcher" { spawn "dms" "ipc" "call" "launcher" "toggle"; }
-    Mod+T hotkey-overlay-title="Edit Desktop Tasks" { spawn "/var/home/andres/.config/niri/scripts/edit_tasks.sh"; }
+    Mod+T hotkey-overlay-title="Edit Desktop Tasks" { spawn-sh "$HOME/.config/niri/scripts/edit_tasks.sh"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen" { spawn "dms" "ipc" "call" "session" "lock"; }
 
     // Mouse bindings for moving and resizing columns

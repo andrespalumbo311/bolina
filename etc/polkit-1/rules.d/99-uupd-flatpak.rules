@@ -1,7 +1,6 @@
-/* Permetti a uupd e agli utenti nel gruppo wheel di gestire Flatpak e rpm-ostree senza password */
+/* Permetti a uupd e agli utenti nel gruppo wheel di gestire Flatpak senza password */
 polkit.addRule(function(action, subject) {
-    if ((action.id.indexOf("org.freedesktop.Flatpak.") == 0 ||
-         action.id.indexOf("org.projectatomic.rpmostree1.") == 0) &&
+    if (action.id.indexOf("org.freedesktop.Flatpak.") == 0 &&
         subject.isInGroup("wheel")) {
         return polkit.Result.YES;
     }

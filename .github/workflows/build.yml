@@ -116,6 +116,9 @@ jobs:
 
       - name: Build Image
         id: build_image
+        env:
+          MOK_KEY_SECRET: ${{ secrets.MOK_KEY }}
+          MOK_CRT_SECRET: ${{ secrets.MOK_CRT }}
         run: |
           # Convert multi-line labels to buildah --label format
           echo "${{ steps.metadata.outputs.labels }}" > labels.txt
@@ -127,9 +130,9 @@ jobs:
           done < labels.txt
 
           # Create temp files for secrets (fallback to dummy key for PR builds without secrets access)
-          if [ -n "${{ secrets.MOK_KEY }}" ] && [ -n "${{ secrets.MOK_CRT }}" ]; then
-            echo "${{ secrets.MOK_KEY }}" > MOK.key
-            echo "${{ secrets.MOK_CRT }}" > MOK.crt
+          if [ -n "$MOK_KEY_SECRET" ] && [ -n "$MOK_CRT_SECRET" ]; then
+            printf '%s\n' "$MOK_KEY_SECRET" > MOK.key
+            printf '%s\n' "$MOK_CRT_SECRET" > MOK.crt
             echo "is_dummy_key=false" >> "$GITHUB_OUTPUT"
           else
             echo "Secrets MOK_KEY/MOK_CRT not available (PR mode). Generating dummy key pair for build verification."
@@ -156,14 +159,16 @@ jobs:
             --secret id=MOK_crt,src=MOK.crt \
             --tag localhost/${{ env.IMAGE_NAME }}:latest \
             .
-          
-          # Clean up
-          rm MOK.key MOK.crt
 
           # Apply all tags from metadata with sudo
           for tag in ${{ steps.metadata.outputs.tags }}; do
             sudo podman tag localhost/${{ env.IMAGE_NAME }}:latest $tag
           done
+
+      - name: Clean up sensitive build keys
+        if: always()
+        run: |
+          rm -f MOK.key MOK.crt labels.txt
 
       # Rechunk nativo: suddivide l'immagine in layer OCI granulari per pacchetto RPM.
       # Questo permette aggiornamenti delta reali: il client scarica solo i layer che cambiano.

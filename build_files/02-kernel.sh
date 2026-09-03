@@ -44,6 +44,5 @@ sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modu
 
 # Pulizia post-installazione per bootc lint
 rm -rf /boot/* /tmp/bin
-setsebool -P domain_kernel_load_modules on || true
 dnf5 -y copr disable bieszczaders/kernel-cachyos-lto || true
 dnf5 -y copr disable dejan/rpms || true
