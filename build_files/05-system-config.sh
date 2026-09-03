@@ -58,6 +58,12 @@ if [ -f /etc/group ]; then
     fi
 fi
 
+# Correzione del bug upstream COPR di dms-greeter (che assegna la cache all'utente inesistente 'greeter')
+if [ -f /usr/lib/tmpfiles.d/dms-greeter.conf ]; then
+    sed -i 's/greeter greeter/greetd greetd/g' /usr/lib/tmpfiles.d/dms-greeter.conf
+    sed -i 's/0750/0775/g' /usr/lib/tmpfiles.d/dms-greeter.conf
+fi
+
 dnf5 clean all
 
 # Pulizia preventiva in-place di /run e /tmp da artefatti di build per bootc lint e rechunker
