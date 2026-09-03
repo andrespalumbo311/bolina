@@ -212,26 +212,23 @@ jobs:
         run: |
           SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
 
-          # Esegue rpm-ostree montando host storage in sola lettura e scrivendo direttamente su OCI Layout (/mnt/build/chunked-oci)
-          # Il trasporto 'oci:' scrive direttamente i blob OCI compressi su disco NVMe ad alto IOPS,
-          # azzerando il degrado a VFS, i lock di containers-storage e dimezzando lo spazio disco utilizzato.
-          # NOTA: usiamo /tmp/build come destinazione interna perché /tmp è sempre presente e scrivibile in qualsiasi rootfs
+          # Esegue rpm-ostree montando host storage su driver overlay pulito
+          # e genera 64 layer semantici per bootc
           sudo podman run --rm --privileged \
             --env SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
-            --volume /var/lib/containers:/var/lib/containers:ro \
-            --volume /mnt/build:/tmp/build:rw \
+            --volume /var/lib/containers:/var/lib/containers \
             localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
             rpm-ostree compose build-chunked-oci \
               --bootc \
               --max-layers 64 \
               --format-version 2 \
               --from localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
-              --output oci:/tmp/build/chunked-oci:${{ env.DEFAULT_TAG }}
+              --output containers-storage:localhost/chunked-${{ env.IMAGE_NAME }}
 
           # Rimuove l'immagine non-chunked per liberare spazio
           sudo podman rmi localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} || true
 
-          echo "ref=oci:/mnt/build/chunked-oci:${{ env.DEFAULT_TAG }}" >> "$GITHUB_OUTPUT"
+          echo "ref=containers-storage:localhost/chunked-${{ env.IMAGE_NAME }}" >> "$GITHUB_OUTPUT"
 
       - name: Push To GHCR
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build_image.outputs.is_dummy_key != 'true'
