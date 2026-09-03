@@ -1,9 +1,9 @@
-# AI Agent Guidelines & Operating Rules
+# AI Agent Guidelines & Operating Rules: Bolina Base OS
 
-This repository defines a custom cloud-native Fedora Atomic image (ublue) for a Lenovo ThinkPad X390 Yoga, built as an OCI container via GitHub Actions. Any AI agent operating in this repository must strictly adhere to these guidelines.
+This repository defines **Bolina**, a generic cloud-native Fedora Atomic base image (bootc) featuring Niri Wayland compositor, DankMaterialShell, memory-safe sudo-rs, and CachyOS performance enhancements, built as an OCI container via GitHub Actions. Device-specific overlays (e.g. ThinkPad X390 Yoga) belong in downstream fleet repositories (`bolina-fleet`).
 
 ## Operating Context & Constraints
-- **Hardware Target:** Lenovo ThinkPad X390 Yoga (Intel UHD 620, convertible touchscreen/pen).
+- **Hardware Target:** Generic x86_64 cloud-native workstation/laptop baseline. Device-specific quirks (ThinkPad X390) are isolated in `bolina-fleet`.
 - **Host System:** Fedora Atomic / ublue (bootc / ostree).
 - **Filesystem Immutability:** `/usr` is read-only. Never use `rpm-ostree install` or hot-patch system directories directly on the host unless explicitly ordered.
 - **Persistence Model:**

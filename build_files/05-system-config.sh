@@ -18,7 +18,7 @@ chmod +x /etc/skel/.config/niri/scripts/*.sh || true
 dconf update || true
 
 systemctl enable tailscaled.service greetd.service uupd.timer power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service || true
-systemctl --global enable easyeffects.service taildrop-auto-receive.service || true
+systemctl --global enable easyeffects.service || true
 systemctl disable rpm-ostreed-automatic.timer || true
 
 # Configurazione ID immagine per prevenire kernel panic da ibernazione obsoleta post-upgrade
@@ -30,9 +30,9 @@ cat "$tmp_os_rel" > /usr/lib/os-release
 rm -f "$tmp_os_rel"
 
 if [ "${SHA_HEAD_SHORT:-unknown}" != "unknown" ] && [ -n "${SHA_HEAD_SHORT:-}" ]; then
-    echo "IMAGE_ID=\"myublue-${SHA_HEAD_SHORT}\"" >> /usr/lib/os-release
+    echo "IMAGE_ID=\"bolina-${SHA_HEAD_SHORT}\"" >> /usr/lib/os-release
 else
-    echo "IMAGE_ID=\"myublue-$(date +%Y%m%d)\"" >> /usr/lib/os-release
+    echo "IMAGE_ID=\"bolina-$(date +%Y%m%d)\"" >> /usr/lib/os-release
 fi
 
 # Segregazione passwd/group in usr/lib per prevenire conflitti ostree/bootc ad ogni upgrade

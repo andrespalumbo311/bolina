@@ -240,10 +240,10 @@ layout {
 
 // This line starts DankMaterialShell (DMS).
 spawn-sh-at-startup "$HOME/.config/niri/scripts/init-keyring.sh"
-    spawn-at-startup "dbus-update-activation-environment" "--all"
+spawn-at-startup "dbus-update-activation-environment" "--all"
 spawn-at-startup "dms" "run"
-spawn-sh-at-startup "$HOME/.config/niri/scripts/auto-rotate.sh"
-spawn-sh-at-startup "$HOME/.config/niri/scripts/wallpaper_watcher.sh"
+spawn-sh-at-startup "[ -f $HOME/.config/niri/scripts/auto-rotate.sh ] && exec $HOME/.config/niri/scripts/auto-rotate.sh"
+spawn-sh-at-startup "[ -f $HOME/.config/niri/scripts/wallpaper_watcher.sh ] && exec $HOME/.config/niri/scripts/wallpaper_watcher.sh"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"

@@ -34,10 +34,10 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_DESC: "My Customized Universal Blue Image"
-  IMAGE_KEYWORDS: "bootc,ublue,universal-blue"
+  IMAGE_DESC: "Bolina Cloud-Native Desktop OS"
+  IMAGE_KEYWORDS: "bootc,ublue,bolina,niri,wayland"
   IMAGE_LOGO_URL: "https://avatars.githubusercontent.com/u/120078124?s=200&v=4"  # Put your own image here for a fancy profile on https://artifacthub.io/!
-  IMAGE_NAME: "${{ github.event.repository.name }}"  # output image name, usually same as repo name
+  IMAGE_NAME: "bolina"  # output image name
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
   DEFAULT_TAG: "latest"
   STORAGE_DRIVER: "overlay"
@@ -264,4 +264,27 @@ jobs:
         env:
           COSIGN_EXPERIMENTAL: false
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
+
+      - name: Trigger Fleet Build (bolina-fleet)
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build_image.outputs.is_dummy_key != 'true'
+        env:
+          DISPATCH_TOKEN: ${{ secrets.FLEET_DISPATCH_TOKEN }}
+        run: |
+          if [ -n "$DISPATCH_TOKEN" ]; then
+            echo "Inoltro dispatch base_image_updated a bolina-fleet..."
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+              "https://api.github.com/repos/${{ github.repository_owner }}/bolina-fleet/dispatches" \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $DISPATCH_TOKEN" \
+              -d '{"event_type": "base_image_updated", "client_payload": {"digest": "${{ steps.push.outputs.digest }}"}}')
+            
+            if [ "$HTTP_STATUS" = "204" ]; then
+              echo "Trigger flotta inviato con successo (HTTP 204)."
+            else
+              echo "::warning ::Impossibile inviare il dispatch a bolina-fleet (HTTP $HTTP_STATUS). Verifica il secret FLEET_DISPATCH_TOKEN."
+            fi
+          else
+            echo "FLEET_DISPATCH_TOKEN non configurato. Skip del trigger flotta."
+          fi
+
 
