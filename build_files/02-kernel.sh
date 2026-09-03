@@ -41,7 +41,8 @@ fi
 
 # Firma SecureBoot deterministica tramite faketime
 if command -v faketime &>/dev/null; then
-    faketime -f "@${SOURCE_DATE_EPOCH}" sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz
+    SIGN_DATE=$(date -u -d "@${SOURCE_DATE_EPOCH}" "+%Y-%m-%d %H:%M:%S")
+    faketime "${SIGN_DATE}" sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz
 else
     sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz
 fi
