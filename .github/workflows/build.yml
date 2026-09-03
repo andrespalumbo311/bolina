@@ -222,8 +222,8 @@ jobs:
           # e genera 64 layer semantici per bootc
           sudo podman run --rm --privileged \
             --env SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
-            --env REGISTRY_AUTH_FILE=/root/.docker/config.json \
-            --volume /home/runner/.docker/config.json:/root/.docker/config.json:ro \
+            --env REGISTRY_AUTH_FILE=/tmp/auth.json \
+            --volume /home/runner/.docker/config.json:/tmp/auth.json:ro \
             --volume /var/lib/containers:/var/lib/containers \
             localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
             rpm-ostree compose build-chunked-oci \
