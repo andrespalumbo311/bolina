@@ -15,9 +15,6 @@ ARG COREUTILS_VERSION="0.11.0"
 # renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
 ARG AGY_VERSION="1.1.25"
 
-# Installazione dipendenze per download e verifica
-RUN dnf install -y curl jq tar xz
-
 # Download e verifica utility (Starship, Topgrade, uupd, sudo-rs, coreutils)
 RUN mkdir -p /tmp/verify /tmp/bin && \
     # Starship
