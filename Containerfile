@@ -79,9 +79,6 @@ RUN mkdir -p /tmp/verify /tmp/fonts && \
 # STAGE 2: Immagine Finale
 FROM ghcr.io/ublue-os/base-main:latest@sha256:ea20e7ad603a6ad7564063a4e38c822c00fa5de71b9fa38a911693e4ad5f94b8
 
-ARG SHA_HEAD_SHORT=unknown
-ARG SOURCE_DATE_EPOCH=1700000000
-
 # Copia dei binari custom dallo stage di build
 COPY --from=builder /tmp/bin/starship /usr/bin/starship
 COPY --from=builder /tmp/bin/topgrade /usr/bin/topgrade
@@ -105,10 +102,11 @@ RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
     /tmp/build_files/01-copr.sh
 
 # STRATO 2: Swap Kernel CachyOS & Firma SecureBoot
+ARG KERNEL_EPOCH=1700000000
 RUN --mount=type=secret,id=MOK_key \
     --mount=type=secret,id=MOK_crt \
     --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
-    SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" /tmp/build_files/02-kernel.sh
+    SOURCE_DATE_EPOCH="${KERNEL_EPOCH}" /tmp/build_files/02-kernel.sh
 
 # STRATO 3: Utilità CLI e System Tooling
 RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
@@ -119,6 +117,8 @@ RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
     /tmp/build_files/04-desktop-packages.sh
 
 # STRATO 5: Configurazione Servizi, Flatpak, os-release e Segregazione Utenti
+# NOTA: ARG SHA_HEAD_SHORT dichiarata qui per non invalidare gli strati pesanti precedenti ad ogni commit
+ARG SHA_HEAD_SHORT=unknown
 RUN SHA_HEAD_SHORT="${SHA_HEAD_SHORT}" /tmp/build_files/05-system-config.sh && \
     rm -rf /tmp/build_files /tmp/MOK.der
 
