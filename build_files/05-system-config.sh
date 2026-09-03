@@ -53,5 +53,8 @@ if [ -f /etc/group ]; then
     fi
 fi
 
+# Pulizia preventiva in-place di /run e /tmp da artefatti di build per bootc lint e rechunker
+rm -rf /run/* /run/.* /tmp/* /tmp/.* 2>/dev/null || true
+
 dnf5 clean all
 

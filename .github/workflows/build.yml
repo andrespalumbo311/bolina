@@ -186,6 +186,7 @@ jobs:
 
           # Build directly in root storage (sudo)
           sudo buildah bud \
+            --layers \
             "${LABEL_ARGS[@]}" \
             "${CACHE_ARGS[@]}" \
             --build-arg SHA_HEAD_SHORT="${SHA_SHORT}" \
@@ -212,27 +213,21 @@ jobs:
         run: |
           SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
 
-          # Pulizia /run e /tmp dall'immagine (artefatti di build)
-          container=$(sudo buildah from localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }})
-          mnt=$(sudo buildah mount $container)
-          sudo bash -c "rm -rf $mnt/run/.* $mnt/run/* $mnt/tmp/.* $mnt/tmp/*"
-          sudo buildah umount $container
-          sudo buildah commit --identity-label=false --rm $container localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
-
           # Esegue rpm-ostree montando host storage in sola lettura e scrivendo direttamente su OCI Layout (/mnt/build/chunked-oci)
           # Il trasporto 'oci:' scrive direttamente i blob OCI compressi su disco NVMe ad alto IOPS,
           # azzerando il degrado a VFS, i lock di containers-storage e dimezzando lo spazio disco utilizzato.
+          # NOTA: usiamo /tmp/build come destinazione interna perché /tmp è sempre presente e scrivibile in qualsiasi rootfs
           sudo podman run --rm --privileged \
             --env SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
             --volume /var/lib/containers:/var/lib/containers:ro \
-            --volume /mnt/build:/mnt/build:rw \
+            --volume /mnt/build:/tmp/build:rw \
             localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
             rpm-ostree compose build-chunked-oci \
               --bootc \
               --max-layers 64 \
               --format-version 2 \
               --from localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
-              --output oci:/mnt/build/chunked-oci:${{ env.DEFAULT_TAG }}
+              --output oci:/tmp/build/chunked-oci:${{ env.DEFAULT_TAG }}
 
           # Rimuove l'immagine non-chunked per liberare spazio
           sudo podman rmi localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} || true
