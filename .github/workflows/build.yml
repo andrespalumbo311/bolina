@@ -208,16 +208,29 @@ jobs:
         run: |
           SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
 
+          # Verifica se esiste un'immagine precedente su GHCR per stabilizzare i chunk
+          PREV_BUILD_ARG=()
+          TARGET_REF="docker://${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}"
+          if sudo skopeo inspect --authfile /home/runner/.docker/config.json "$TARGET_REF" >/dev/null 2>&1; then
+            echo "Immagine precedente trovata su GHCR ($TARGET_REF): attivo allineamento dei chunk con --previous-build"
+            PREV_BUILD_ARG=("--previous-build" "$TARGET_REF")
+          else
+            echo "Nessuna immagine precedente trovata su GHCR. Generazione chunk da zero."
+          fi
+
           # Esegue rpm-ostree montando host storage su driver overlay pulito
           # e genera 64 layer semantici per bootc
           sudo podman run --rm --privileged \
             --env SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH}" \
+            --env REGISTRY_AUTH_FILE=/root/.docker/config.json \
+            --volume /home/runner/.docker/config.json:/root/.docker/config.json:ro \
             --volume /var/lib/containers:/var/lib/containers \
             localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
             rpm-ostree compose build-chunked-oci \
               --bootc \
               --max-layers 64 \
               --format-version 2 \
+              "${PREV_BUILD_ARG[@]}" \
               --from localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }} \
               --output containers-storage:localhost/chunked-${{ env.IMAGE_NAME }}
 
