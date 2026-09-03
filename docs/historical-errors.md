@@ -1,6 +1,6 @@
 # Historical Errors & Architectural Patterns
 
-This document is the living knowledge base of technical challenges, abstract root causes, and verified architectural patterns for the `myublue` custom Fedora Atomic image and ThinkPad X390 Yoga workstation.
+This document is the living knowledge base of technical challenges, abstract root causes, and verified architectural patterns for the `bolina` cloud-native Fedora Atomic base image.
 
 All AI agents and contributors must consult the relevant category before implementing changes and update this document after validating new architectural fixes.
 
