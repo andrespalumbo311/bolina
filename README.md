@@ -1,4 +1,4 @@
-# bolina
+# bolina ⛵
 
 `bolina` is an immutable, cloud-native desktop Linux operating system built on top of [Universal Blue](https://universal-blue.org/) (`ublue-os/base-main`) and [bootc](https://github.com/bootc-dev/bootc) (Fedora Atomic).
 

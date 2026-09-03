@@ -1,4 +1,11 @@
 if status is-interactive
+    # Branding di benvenuto bolina ⛵
+    function fish_greeting
+        if type -q fastfetch
+            fastfetch
+        end
+    end
+
     # Inizializzazione Starship
     if type -q starship
         starship init fish | source

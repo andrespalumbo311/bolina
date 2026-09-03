@@ -7,7 +7,7 @@ dnf5 install -y \
     xdg-desktop-portal-wlr kde-connect \
     greetd fprintd fprintd-pam \
     brightnessctl grim slurp \
-    pavucontrol kitty pamixer \
+    pavucontrol kitty pamixer fastfetch \
     libva-intel-media-driver libva-utils \
     scx-manager python3-pyqt6 \
     easyeffects lsp-plugins \

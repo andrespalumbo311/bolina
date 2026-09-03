@@ -21,9 +21,14 @@ systemctl enable tailscaled.service greetd.service uupd.timer power-profiles-dae
 systemctl --global enable easyeffects.service || true
 systemctl disable rpm-ostreed-automatic.timer || true
 
-# Configurazione ID immagine per prevenire kernel panic da ibernazione obsoleta post-upgrade
-# Pulizia preventiva da byte nulli e righe IMAGE_ID preesistenti in /usr/lib/os-release
+# Configurazione identità OS e ID immagine
 sed -i '/^IMAGE_ID=/d' /usr/lib/os-release || true
+sed -i 's/^NAME=.*/NAME="bolina"/' /usr/lib/os-release || true
+sed -i 's/^PRETTY_NAME=.*/PRETTY_NAME="bolina ⛵"/' /usr/lib/os-release || true
+sed -i 's/^ID=.*/ID=bolina/' /usr/lib/os-release || true
+if ! grep -q '^ID_LIKE=' /usr/lib/os-release; then
+    echo 'ID_LIKE="fedora"' >> /usr/lib/os-release
+fi
 tmp_os_rel=$(mktemp)
 tr -d '\000' < /usr/lib/os-release > "$tmp_os_rel"
 cat "$tmp_os_rel" > /usr/lib/os-release
