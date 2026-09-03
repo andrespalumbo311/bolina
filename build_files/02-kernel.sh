@@ -39,12 +39,17 @@ if [ ! -f /lib/modules/$KVER/initramfs.img ]; then
     chmod 0600 /lib/modules/$KVER/initramfs.img
 fi
 
-# Firma SecureBoot deterministica tramite faketime
-if command -v faketime &>/dev/null; then
-    SIGN_DATE=$(date -u -d "@${SOURCE_DATE_EPOCH}" "+%Y-%m-%d %H:%M:%S")
-    faketime "${SIGN_DATE}" sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz
-else
-    sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz
+# Firma SecureBoot deterministica tramite faketime (se i secret MOK sono forniti)
+if [ -f /run/secrets/MOK_key ] && [ -s /run/secrets/MOK_key ] && [ -f /run/secrets/MOK_crt ]; then
+    sbattach --remove /lib/modules/$KVER/vmlinuz 2>/dev/null || true
+    if command -v faketime &>/dev/null; then
+        SIGN_DATE=$(date -u -d "@${SOURCE_DATE_EPOCH}" "+%Y-%m-%d %H:%M:%S")
+        faketime "${SIGN_DATE}" sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz.signed /lib/modules/$KVER/vmlinuz && \
+        mv -f /lib/modules/$KVER/vmlinuz.signed /lib/modules/$KVER/vmlinuz
+    else
+        sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz.signed /lib/modules/$KVER/vmlinuz && \
+        mv -f /lib/modules/$KVER/vmlinuz.signed /lib/modules/$KVER/vmlinuz
+    fi
 fi
 
 # Pulizia post-installazione per bootc lint

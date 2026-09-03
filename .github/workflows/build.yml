@@ -240,7 +240,7 @@ jobs:
           echo "ref=containers-storage:localhost/chunked-${{ env.IMAGE_NAME }}" >> "$GITHUB_OUTPUT"
 
       - name: Push To GHCR
-        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build_image.outputs.is_dummy_key != 'true'
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         id: push
         run: |
           # Pubblica l'immagine Chunked-OCI per la produzione (bootc)
