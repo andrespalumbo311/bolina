@@ -122,6 +122,9 @@ jobs:
 
       - name: Configure Storage & Performance
         run: |
+          # Pulisce eventuale database storage preesistente e non tipizzato del runner Ubuntu
+          sudo rm -rf /var/lib/containers/storage
+
           # Configura esplicitamente lo storage driver overlay su file di sistema per root
           sudo mkdir -p /etc/containers
           sudo tee /etc/containers/storage.conf << 'EOF'
@@ -129,9 +132,6 @@ jobs:
           driver = "overlay"
           runroot = "/run/containers/storage"
           graphroot = "/var/lib/containers/storage"
-
-          [storage.options.overlay]
-          mountopt = "nodev,metacopy=on"
           EOF
 
           # Ottimizza swappiness del kernel per prevenire I/O thrashing su VM Azure
@@ -186,7 +186,6 @@ jobs:
 
           # Build directly in root storage (sudo)
           sudo buildah bud \
-            --layers \
             "${LABEL_ARGS[@]}" \
             "${CACHE_ARGS[@]}" \
             --build-arg SHA_HEAD_SHORT="${SHA_SHORT}" \
@@ -195,9 +194,9 @@ jobs:
             --tag localhost/${{ env.IMAGE_NAME }}:latest \
             .
 
-          # Apply all tags from metadata with sudo
+          # Apply all tags from metadata with sudo buildah
           for tag in ${{ steps.metadata.outputs.tags }}; do
-            sudo podman tag localhost/${{ env.IMAGE_NAME }}:latest $tag
+            sudo buildah tag localhost/${{ env.IMAGE_NAME }}:latest $tag
           done
 
       - name: Clean up sensitive build keys
