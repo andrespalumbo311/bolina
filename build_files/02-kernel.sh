@@ -17,7 +17,7 @@ chmod +x /tmp/bin/grub2-probe /tmp/bin/grub2-editenv
 
 # Installazione Kernel CachyOS con PATH override per i mock
 PATH=/tmp/bin:$PATH dnf5 -y --setopt=protected_packages= install \
-    kernel-cachyos-lto sbsigntools \
+    kernel-cachyos-lto sbsigntools libfaketime \
     --allowerasing
 
 rm -f /etc/kernel/install.conf
@@ -33,14 +33,18 @@ KVER=$(ls /lib/modules | grep cachyos | head -n 1)
 depmod -a $KVER
 
 # Generatione reproducible dell'initramfs
+export SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-1700000000}
 if [ ! -f /lib/modules/$KVER/initramfs.img ]; then
-    export SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-1700000000}
     dracut --kver $KVER --no-hostonly --reproducible --add ostree --force /lib/modules/$KVER/initramfs.img
     chmod 0600 /lib/modules/$KVER/initramfs.img
 fi
 
-# Firma SecureBoot
-sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz
+# Firma SecureBoot deterministica tramite faketime
+if command -v faketime &>/dev/null; then
+    faketime -f "@${SOURCE_DATE_EPOCH}" sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz
+else
+    sbsign --key /run/secrets/MOK_key --cert /run/secrets/MOK_crt --output /lib/modules/$KVER/vmlinuz /lib/modules/$KVER/vmlinuz
+fi
 
 # Pulizia post-installazione per bootc lint
 rm -rf /boot/* /tmp/bin

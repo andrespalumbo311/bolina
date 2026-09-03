@@ -53,8 +53,14 @@ if [ -f /etc/group ]; then
     fi
 fi
 
+dnf5 clean all
+
 # Pulizia preventiva in-place di /run e /tmp da artefatti di build per bootc lint e rechunker
 rm -rf /run/* /run/.* /tmp/* /tmp/.* 2>/dev/null || true
 
-dnf5 clean all
+# Pulizia residui di build di DNF5 e cache temporanee per massimizzare la determinazione dell'immagine
+rm -rf /var/lib/dnf \
+       /var/log/dnf* \
+       /usr/lib/sysimage/libdnf5/transaction_history* \
+       /usr/lib/fontconfig/cache/* 2>/dev/null || true
 
