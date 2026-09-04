@@ -14,7 +14,11 @@
         }
     },
     "display": {
-        "separator": " ➜ "
+        "separator": " ➜ ",
+        "disableLinewrap": true,
+        "key": {
+            "width": 10
+        }
     },
     "modules": [
         "title",
@@ -23,20 +27,41 @@
         "host",
         "kernel",
         "uptime",
-        "packages",
+        {
+            "type": "packages",
+            "format": "{rpm} (rpm), {flatpak-all} (flatpak), {brew} (brew)"
+        },
         "shell",
-        "display",
-        "wm",
+        {
+            "type": "display",
+            "key": "Display",
+            "compactType": "original-with-refresh-rate"
+        },
+        {
+            "type": "wm",
+            "key": "WM"
+        },
         "theme",
         "icons",
-        "font",
+        {
+            "type": "font",
+            "format": "{3}"
+        },
         "terminal",
         "cpu",
         "gpu",
         "memory",
         "swap",
-        "disk",
-        "battery",
+        {
+            "type": "disk",
+            "folders": "/etc",
+            "key": "Disk (/)",
+            "format": "{size-used} / {size-total} ({size-percentage})"
+        },
+        {
+            "type": "battery",
+            "key": "Battery"
+        },
         "break",
         "colors"
     ]
