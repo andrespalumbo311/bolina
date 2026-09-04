@@ -1,0 +1,16 @@
+{
+  "id": "closeWindow",
+  "name": "Close Window",
+  "description": "Close currently focused window in Niri",
+  "version": "1.0.0",
+  "author": "Bolina",
+  "icon": "close",
+  "type": "widget",
+  "capabilities": [
+    "dankbar-widget"
+  ],
+  "component": "./CloseWindowWidget.qml",
+  "permissions": [
+    "process"
+  ]
+}
