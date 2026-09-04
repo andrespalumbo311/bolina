@@ -2,11 +2,6 @@
 set -eoux pipefail
 
 echo "=== 05: Configuring Services, Skel, Flatpak & User Segregation ==="
-mkdir -p /etc/pki/akmods/certs/
-
-if [ -f /tmp/MOK.der ]; then
-    cp /tmp/MOK.der /etc/pki/akmods/certs/public_key.der
-fi
 
 if id "greetd" &>/dev/null; then
     usermod -aG video,render,tty,input greetd || true
@@ -18,7 +13,6 @@ chmod +x /etc/skel/.config/niri/scripts/*.sh || true
 dconf update || true
 
 systemctl enable tailscaled.service greetd.service uupd.timer power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service || true
-systemctl --global enable easyeffects.service || true
 systemctl disable rpm-ostreed-automatic.timer || true
 
 # Configurazione identità OS e ID immagine

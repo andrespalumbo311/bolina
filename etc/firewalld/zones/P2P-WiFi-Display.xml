@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<zone target="ACCEPT">
-  <service name="dhcp"/>
-  <service name="dhcpv6-client"/>
-  <service name="dns"/>
-  <port port="7236" protocol="tcp"/>
-  <port port="7250" protocol="tcp"/>
-  <protocol value="igmp"/>
-</zone>

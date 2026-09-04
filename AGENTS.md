@@ -18,9 +18,9 @@ This repository defines **Bolina**, a generic cloud-native Fedora Atomic base im
 - **Forbidden without explicit confirmation:** Modifying files, staging git commits, applying patches, or running mutating system commands.
 - Wait for explicit user authorization (e.g. "procedi a risolvere") before applying fixes.
 
-### 2. Operational Memory Protocol ([historical-errors.md](file:///var/home/andres/Documents/myublue/docs/historical-errors.md))
-- **Mandatory Consultation:** Before planning or applying architectural changes (compositor, portals, audio, systemd, bootc, pam, kernel/dracut), consult the living library in [docs/historical-errors.md](file:///var/home/andres/Documents/myublue/docs/historical-errors.md) to avoid known failure modes.
-- **Self-Update Post-Fix:** Once a fix is verified and working, document the new error class or refine an existing preventive pattern in [docs/historical-errors.md](file:///var/home/andres/Documents/myublue/docs/historical-errors.md).
+### 2. Operational Memory Protocol ([historical-errors.md](file:///var/home/andres/Documents/myublue/bolina/docs/historical-errors.md))
+- **Mandatory Consultation:** Before planning or applying architectural changes (compositor, portals, audio, systemd, bootc, pam, kernel/dracut), consult the living library in [docs/historical-errors.md](file:///var/home/andres/Documents/myublue/bolina/docs/historical-errors.md) to avoid known failure modes.
+- **Self-Update Post-Fix:** Once a fix is verified and working, document the new error class or refine an existing preventive pattern in [docs/historical-errors.md](file:///var/home/andres/Documents/myublue/bolina/docs/historical-errors.md).
 - **Technical Abstraction:** Always state the root cause and preventive action in general, abstract terms (e.g. D-Bus portal activation, FUSE unmount race, OCI layer non-determinism) so it serves as a reusable pattern.
 
 ### 3. Live Session Validation

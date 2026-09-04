@@ -1,7 +1,7 @@
 input {
     keyboard {
         xkb {
-            layout "de_custom(swap_ssharp_question)"
+            // Inherits system locale from org.freedesktop.locale1
         }
         numlock
     }
@@ -15,26 +15,5 @@ input {
     mouse {
         accel-speed 0.4
     }
-    trackpoint
-    touch {
-        map-to-output "eDP-1"
-    }
-    tablet {
-        map-to-output "eDP-1"
-    }
     focus-follows-mouse max-scroll-amount="0%"
-}
-
-output "DP-1" {
-    position x=0 y=-1050
-}
-output "DP-2" {
-    position x=0 y=-1050
-}
-output "HDMI-A-1" {
-    position x=0 y=-1050
-}
-
-output "eDP-1" {
-    position x=0 y=0
 }

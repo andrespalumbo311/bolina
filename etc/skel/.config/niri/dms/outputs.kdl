@@ -1,12 +1,2 @@
-output "DP-1" {
-    position x=0 y=-1050
-}
-output "DP-2" {
-    position x=0 y=-1050
-}
-output "HDMI-A-1" {
-    position x=0 y=-1050
-}
-output "eDP-1" {
-    position x=0 y=0
-}
+// Output configuration is managed dynamically by Niri / DMS.
+// Device-specific fixed monitor geometries belong in downstream fleet overlays.

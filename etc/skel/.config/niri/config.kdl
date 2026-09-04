@@ -3,76 +3,8 @@
 // Check the wiki for a full description of the configuration:
 // https://yalter.github.io/niri/Configuration:-Introduction
 
-// Input device configuration.
-// Find the full list of options on the wiki:
-// https://yalter.github.io/niri/Configuration:-Input
-input {
-    keyboard {
-        xkb {
-            layout "de_custom(swap_ssharp_question)"
-            // You can set rules, model, layout, variant and options.
-            // For more information, see xkeyboard-config(7).
-
-            // For example:
-            // layout "us,ru"
-            // options "grp:win_space_toggle,compose:ralt,ctrl:nocaps"
-
-            // If this section is empty, niri will fetch xkb settings
-            // from org.freedesktop.locale1. You can control these using
-            // localectl set-x11-keymap.
-        }
-
-        // Enable numlock on startup, omitting this setting disables it.
-        numlock
-    }
-
-    // Next sections include libinput settings.
-    // Omitting settings disables them, or leaves them at their default values.
-    // All commented-out settings here are examples, not defaults.
-    touchpad {
-        tap
-        dwt
-        dwtp
-        natural-scroll
-        accel-speed 0.3
-        // accel-profile "flat"
-    }
-
-
-    mouse {
-        // off
-        // natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "no-scroll"
-    }
-
-    trackpoint {
-        // off
-        // natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "on-button-down"
-        // scroll-button 273
-        // scroll-button-lock
-        // middle-emulation
-    }
-
-    touch {
-        map-to-output "eDP-1"
-    }
-
-    tablet {
-        map-to-output "eDP-1"
-    }
-
-    // Uncomment this to make the mouse warp to the center of newly focused windows.
-    // warp-mouse-to-focus
-
-    // Focus windows and outputs automatically when moving the mouse into them.
-    // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
-    focus-follows-mouse max-scroll-amount="0%"
-}
+// Input device configuration (modular include)
+include "dms/input.kdl"
 
 
 // You can configure outputs by their name, which you can find
@@ -307,7 +239,7 @@ binds {
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Return hotkey-overlay-title="Open a Terminal: kitty" { spawn "kitty"; }
     Mod+Space hotkey-overlay-title="Run an Application: DMS Launcher" { spawn "dms" "ipc" "call" "launcher" "toggle"; }
-    Mod+T hotkey-overlay-title="Edit Desktop Tasks" { spawn-sh "$HOME/.config/niri/scripts/edit_tasks.sh"; }
+    Mod+T hotkey-overlay-title="Edit Desktop Tasks" { spawn-sh "[ -f $HOME/.config/niri/scripts/edit_tasks.sh ] && exec $HOME/.config/niri/scripts/edit_tasks.sh"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen" { spawn "dms" "ipc" "call" "session" "lock"; }
 
     // Mouse bindings for moving and resizing columns

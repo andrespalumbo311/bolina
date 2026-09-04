@@ -148,9 +148,6 @@ jobs:
 
       - name: Build Image
         id: build_image
-        env:
-          MOK_KEY_SECRET: ${{ secrets.MOK_KEY }}
-          MOK_CRT_SECRET: ${{ secrets.MOK_CRT }}
         run: |
           # Convert multi-line labels to buildah --label format
           echo "${{ steps.metadata.outputs.labels }}" > labels.txt
@@ -160,17 +157,6 @@ jobs:
               LABEL_ARGS+=("--label" "$line")
             fi
           done < labels.txt
-
-          # Create temp files for secrets (fallback to dummy key for PR builds without secrets access)
-          if [ -n "$MOK_KEY_SECRET" ] && [ -n "$MOK_CRT_SECRET" ]; then
-            printf '%s\n' "$MOK_KEY_SECRET" > MOK.key
-            printf '%s\n' "$MOK_CRT_SECRET" > MOK.crt
-            echo "is_dummy_key=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "Secrets MOK_KEY/MOK_CRT not available (PR mode). Generating dummy key pair for build verification."
-            openssl req -new -x509 -newkey rsa:2048 -keyout MOK.key -out MOK.crt -nodes -days 1 -subj "/CN=Dummy MOK Key for PR Build/"
-            echo "is_dummy_key=true" >> "$GITHUB_OUTPUT"
-          fi
 
           SHA_SHORT=$(git rev-parse --short HEAD)
 
@@ -185,8 +171,6 @@ jobs:
             "${LABEL_ARGS[@]}" \
             "${CACHE_ARGS[@]}" \
             --build-arg SHA_HEAD_SHORT="${SHA_SHORT}" \
-            --secret id=MOK_key,src=MOK.key \
-            --secret id=MOK_crt,src=MOK.crt \
             --tag localhost/${{ env.IMAGE_NAME }}:latest \
             .
 
@@ -195,10 +179,10 @@ jobs:
             sudo buildah tag localhost/${{ env.IMAGE_NAME }}:latest $tag
           done
 
-      - name: Clean up sensitive build keys
+      - name: Clean up temporary build files
         if: always()
         run: |
-          rm -f MOK.key MOK.crt labels.txt
+          rm -f labels.txt
 
       # Rechunk nativo: suddivide l'immagine in layer OCI granulari per pacchetto RPM.
       # Eseguito solo su push e schedule (non su PR) per consentire PR veloci (10 min).
@@ -252,12 +236,12 @@ jobs:
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
-        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build_image.outputs.is_dummy_key != 'true'
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         with:
           cosign-release: 'v3.1.3'
 
       - name: Sign container image
-        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build_image.outputs.is_dummy_key != 'true'
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         run: |
           cosign sign -y --key env://COSIGN_PRIVATE_KEY \
             ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}
@@ -266,7 +250,7 @@ jobs:
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
 
       - name: Trigger Fleet Build (bolina-fleet)
-        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && steps.build_image.outputs.is_dummy_key != 'true'
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         env:
           DISPATCH_TOKEN: ${{ secrets.FLEET_DISPATCH_TOKEN }}
         run: |

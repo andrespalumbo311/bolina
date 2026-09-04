@@ -92,17 +92,14 @@ COPY --from=builder /tmp/fonts /usr/share/fonts/JetBrainsMono
 COPY build_files /tmp/build_files
 COPY etc /etc
 COPY usr /usr
-COPY MOK.der /tmp/MOK.der
 
 # STRATO 1: Repository COPR
 RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
     /tmp/build_files/01-copr.sh
 
-# STRATO 2: Swap Kernel CachyOS & Firma SecureBoot
+# STRATO 2: Swap Kernel CachyOS
 ARG KERNEL_EPOCH=1700000000
-RUN --mount=type=secret,id=MOK_key \
-    --mount=type=secret,id=MOK_crt \
-    --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
+RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
     SOURCE_DATE_EPOCH="${KERNEL_EPOCH}" /tmp/build_files/02-kernel.sh
 
 # STRATO 3: Utilità CLI e System Tooling
@@ -117,7 +114,7 @@ RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
 # NOTA: ARG SHA_HEAD_SHORT dichiarata qui per non invalidare gli strati pesanti precedenti ad ogni commit
 ARG SHA_HEAD_SHORT=unknown
 RUN SHA_HEAD_SHORT="${SHA_HEAD_SHORT}" /tmp/build_files/05-system-config.sh && \
-    rm -rf /tmp/build_files /tmp/MOK.der
+    rm -rf /tmp/build_files
 
 ### LINTING
 RUN bootc container lint

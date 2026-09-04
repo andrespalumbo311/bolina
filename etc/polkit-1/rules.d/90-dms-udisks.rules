@@ -1,0 +1,11 @@
+/* Permetti agli utenti in 'wheel' di gestire i dischi (mount/unmount/eject) via udisks2 senza password */
+polkit.addRule(function(action, subject) {
+    if ((action.id == "org.freedesktop.udisks2.filesystem-mount" ||
+         action.id == "org.freedesktop.udisks2.filesystem-mount-system" ||
+         action.id == "org.freedesktop.udisks2.filesystem-unmount-others" ||
+         action.id == "org.freedesktop.udisks2.drive-eject" ||
+         action.id == "org.freedesktop.udisks2.drive-detach") &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});
