@@ -58,6 +58,13 @@ if [ -f /usr/lib/tmpfiles.d/dms-greeter.conf ]; then
     sed -i 's/0750/0775/g' /usr/lib/tmpfiles.d/dms-greeter.conf
 fi
 
+# Silenzia warning di deprecazione e transizione console in niri-session su VT1
+if [ -f /usr/bin/niri-session ]; then
+    sed -i '/# Reset failed state/i \    printf "\\033[H\\033[2J\\033[3J" 2>/dev/null || true' /usr/bin/niri-session
+    sed -i 's/systemctl --user import-environment/systemctl --user import-environment 2>\/dev\/null || true/' /usr/bin/niri-session
+    sed -i 's/dbus-update-activation-environment --all$/dbus-update-activation-environment --all >\/dev\/null 2>\&1 || true/' /usr/bin/niri-session
+fi
+
 dnf5 clean all
 
 # Pulizia preventiva in-place di /run e /tmp da artefatti di build per bootc lint e rechunker
