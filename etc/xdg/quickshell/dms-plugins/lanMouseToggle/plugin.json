@@ -1,0 +1,19 @@
+{
+  "id": "lanMouseToggle",
+  "name": "Lan Mouse",
+  "description": "Attiva o disattiva la condivisione mouse e tastiera con Lan Mouse",
+  "version": "1.0.0",
+  "author": "Bolina",
+  "icon": "mouse",
+  "type": "widget",
+  "capabilities": [
+    "control-center",
+    "dankbar-widget"
+  ],
+  "component": "./LanMouseWidget.qml",
+  "permissions": [
+    "settings_read",
+    "settings_write",
+    "process"
+  ]
+}

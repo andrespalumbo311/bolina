@@ -108,6 +108,11 @@
       "id": "plugin_dankKDEConnect",
       "enabled": true,
       "width": 50
+    },
+    {
+      "id": "plugin_lanMouseToggle",
+      "enabled": true,
+      "width": 50
     }
   ],
   "showWorkspaceIndex": false,
