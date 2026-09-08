@@ -14,6 +14,8 @@ ARG SUDO_RS_VERSION="v0.2.15"
 ARG COREUTILS_VERSION="0.11.0"
 # renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
 ARG AGY_VERSION="1.1.27"
+# renovate: datasource=github-releases depName=feschber/lan-mouse
+ARG LAN_MOUSE_VERSION="v0.11.0"
 
 # Download e verifica utility (Starship, Topgrade, uupd, sudo-rs, coreutils)
 RUN mkdir -p /tmp/verify /tmp/bin && \
@@ -64,6 +66,13 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     curl -fsSL "$AGY_URL" -o /tmp/verify/agy.tar.gz && \
     echo "$AGY_SHA  /tmp/verify/agy.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/agy.tar.gz antigravity && \
+    # lan-mouse
+    LAN_MOUSE_ASSETS=$(curl -fsSL https://api.github.com/repos/feschber/lan-mouse/releases/tags/${LAN_MOUSE_VERSION}) && \
+    LAN_MOUSE_URL=$(echo "$LAN_MOUSE_ASSETS" | jq -r '.assets[] | select(.name == "lan-mouse-linux-x86_64") | .browser_download_url') && \
+    LAN_MOUSE_SHA=$(echo "$LAN_MOUSE_ASSETS" | jq -r '.assets[] | select(.name == "lan-mouse-linux-x86_64") | .digest' | cut -d: -f2) && \
+    curl -fsSL "$LAN_MOUSE_URL" -o /tmp/verify/lan-mouse && \
+    echo "$LAN_MOUSE_SHA  /tmp/verify/lan-mouse" | sha256sum --check && \
+    mv /tmp/verify/lan-mouse /tmp/bin/lan-mouse && \
     chmod +x /tmp/bin/* && \
     rm -rf /tmp/verify
 
@@ -86,6 +95,7 @@ COPY --from=builder /tmp/bin/sudoedit /usr/bin/sudoedit-rs
 COPY --from=builder /tmp/bin/su /usr/bin/su-rs
 COPY --from=builder /tmp/bin/coreutils /usr/bin/uutils-coreutils
 COPY --from=builder /tmp/bin/antigravity /usr/bin/antigravity
+COPY --from=builder /tmp/bin/lan-mouse /usr/bin/lan-mouse
 COPY --from=builder /tmp/fonts /usr/share/fonts/JetBrainsMono
 
 # Copia asset di build e configurazione nativa
