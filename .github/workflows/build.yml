@@ -171,6 +171,7 @@ jobs:
             "${LABEL_ARGS[@]}" \
             "${CACHE_ARGS[@]}" \
             --build-arg SHA_HEAD_SHORT="${SHA_SHORT}" \
+            --build-arg GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
             --tag localhost/${{ env.IMAGE_NAME }}:latest \
             .
 

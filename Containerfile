@@ -2,6 +2,8 @@
 # Verify layer cache performance on GHCR build-cache tag
 FROM ghcr.io/ublue-os/base-main:latest@sha256:88d5f95b786fc274bd7903bf39dfa582ecf0eedab6f5415703d4e5fadcdeca05 AS builder
 
+ARG GITHUB_TOKEN=""
+
 # renovate: datasource=github-releases depName=starship/starship
 ARG STARSHIP_VERSION="v1.26.0"
 # renovate: datasource=github-releases depName=topgrade-rs/topgrade
@@ -19,29 +21,36 @@ ARG LAN_MOUSE_VERSION="v0.11.0"
 
 # Download e verifica utility (Starship, Topgrade, uupd, sudo-rs, coreutils)
 RUN mkdir -p /tmp/verify /tmp/bin && \
+    gh_curl() { \
+        if [ -n "$GITHUB_TOKEN" ]; then \
+            curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" "$@"; \
+        else \
+            curl -fsSL "$@"; \
+        fi; \
+    } && \
     # Starship
-    STARSHIP_ASSETS=$(curl -fsSL https://api.github.com/repos/starship/starship/releases/tags/${STARSHIP_VERSION}) && \
+    STARSHIP_ASSETS=$(gh_curl https://api.github.com/repos/starship/starship/releases/tags/${STARSHIP_VERSION}) && \
     STARSHIP_URL=$(echo "$STARSHIP_ASSETS" | jq -r '.assets[] | select(.name == "starship-x86_64-unknown-linux-musl.tar.gz") | .browser_download_url') && \
     STARSHIP_SHA=$(echo "$STARSHIP_ASSETS" | jq -r '.assets[] | select(.name == "starship-x86_64-unknown-linux-musl.tar.gz") | .digest' | cut -d: -f2) && \
     curl -fsSL "$STARSHIP_URL" -o /tmp/verify/starship.tar.gz && \
     echo "$STARSHIP_SHA  /tmp/verify/starship.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/starship.tar.gz starship && \
     # Topgrade
-    TOPGRADE_ASSETS=$(curl -fsSL https://api.github.com/repos/topgrade-rs/topgrade/releases/tags/${TOPGRADE_VERSION}) && \
+    TOPGRADE_ASSETS=$(gh_curl https://api.github.com/repos/topgrade-rs/topgrade/releases/tags/${TOPGRADE_VERSION}) && \
     TOPGRADE_URL=$(echo "$TOPGRADE_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-musl.tar.gz")) | .browser_download_url') && \
     TOPGRADE_SHA=$(echo "$TOPGRADE_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-musl.tar.gz")) | .digest' | cut -d: -f2) && \
     curl -fsSL "$TOPGRADE_URL" -o /tmp/verify/topgrade.tar.gz && \
     echo "$TOPGRADE_SHA  /tmp/verify/topgrade.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/topgrade.tar.gz topgrade && \
     # uupd
-    UUPD_ASSETS=$(curl -fsSL https://api.github.com/repos/ublue-os/uupd/releases/tags/${UUPD_VERSION}) && \
+    UUPD_ASSETS=$(gh_curl https://api.github.com/repos/ublue-os/uupd/releases/tags/${UUPD_VERSION}) && \
     UUPD_URL=$(echo "$UUPD_ASSETS" | jq -r '.assets[] | select(.name == "uupd_Linux_x86_64.tar.gz") | .browser_download_url') && \
     UUPD_SHA=$(echo "$UUPD_ASSETS" | jq -r '.assets[] | select(.name == "uupd_Linux_x86_64.tar.gz") | .digest' | cut -d: -f2) && \
     curl -fsSL "$UUPD_URL" -o /tmp/verify/uupd.tar.gz && \
     echo "$UUPD_SHA  /tmp/verify/uupd.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/uupd.tar.gz uupd && \
     # sudo-rs
-    SUDO_RS_ASSETS=$(curl -fsSL https://api.github.com/repos/trifectatechfoundation/sudo-rs/releases/tags/${SUDO_RS_VERSION}) && \
+    SUDO_RS_ASSETS=$(gh_curl https://api.github.com/repos/trifectatechfoundation/sudo-rs/releases/tags/${SUDO_RS_VERSION}) && \
     SUDO_RS_URL=$(echo "$SUDO_RS_ASSETS" | jq -r '.assets[] | select(.name | startswith("sudo-") and endswith(".tar.gz")) | .browser_download_url' | head -n 1) && \
     SUDO_RS_SHA=$(echo "$SUDO_RS_ASSETS" | jq -r '.assets[] | select(.name | startswith("sudo-") and endswith(".tar.gz")) | .digest' | cut -d: -f2 | head -n 1) && \
     curl -fsSL "$SUDO_RS_URL" -o /tmp/verify/sudo.tar.gz && \
@@ -53,21 +62,21 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     echo "$SU_RS_SHA  /tmp/verify/su.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/su.tar.gz --strip-components=1 && \
     # coreutils (uutils)
-    COREUTILS_ASSETS=$(curl -fsSL https://api.github.com/repos/uutils/coreutils/releases/tags/${COREUTILS_VERSION}) && \
+    COREUTILS_ASSETS=$(gh_curl https://api.github.com/repos/uutils/coreutils/releases/tags/${COREUTILS_VERSION}) && \
     COREUTILS_URL=$(echo "$COREUTILS_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-gnu.tar.gz")) | .browser_download_url') && \
     COREUTILS_SHA=$(echo "$COREUTILS_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-gnu.tar.gz")) | .digest' | cut -d: -f2) && \
     curl -fsSL "$COREUTILS_URL" -o /tmp/verify/coreutils.tar.gz && \
     echo "$COREUTILS_SHA  /tmp/verify/coreutils.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/coreutils.tar.gz --strip-components=1 && \
     # antigravity-cli
-    AGY_ASSETS=$(curl -fsSL https://api.github.com/repos/google-antigravity/antigravity-cli/releases/tags/${AGY_VERSION}) && \
+    AGY_ASSETS=$(gh_curl https://api.github.com/repos/google-antigravity/antigravity-cli/releases/tags/${AGY_VERSION}) && \
     AGY_URL=$(echo "$AGY_ASSETS" | jq -r '.assets[] | select(.name == "agy_cli_linux_x64.tar.gz") | .browser_download_url') && \
     AGY_SHA=$(echo "$AGY_ASSETS" | jq -r '.assets[] | select(.name == "agy_cli_linux_x64.tar.gz") | .digest' | cut -d: -f2) && \
     curl -fsSL "$AGY_URL" -o /tmp/verify/agy.tar.gz && \
     echo "$AGY_SHA  /tmp/verify/agy.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/agy.tar.gz antigravity && \
     # lan-mouse
-    LAN_MOUSE_ASSETS=$(curl -fsSL https://api.github.com/repos/feschber/lan-mouse/releases/tags/${LAN_MOUSE_VERSION}) && \
+    LAN_MOUSE_ASSETS=$(gh_curl https://api.github.com/repos/feschber/lan-mouse/releases/tags/${LAN_MOUSE_VERSION}) && \
     LAN_MOUSE_URL=$(echo "$LAN_MOUSE_ASSETS" | jq -r '.assets[] | select(.name == "lan-mouse-linux-x86_64") | .browser_download_url') && \
     LAN_MOUSE_SHA=$(echo "$LAN_MOUSE_ASSETS" | jq -r '.assets[] | select(.name == "lan-mouse-linux-x86_64") | .digest' | cut -d: -f2) && \
     curl -fsSL "$LAN_MOUSE_URL" -o /tmp/verify/lan-mouse && \
