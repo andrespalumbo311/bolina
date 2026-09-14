@@ -12,8 +12,10 @@ fi
 chmod +x /etc/skel/.config/niri/scripts/*.sh || true
 dconf update || true
 
-systemctl enable tailscaled.service greetd.service uupd.timer power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service || true
-systemctl disable rpm-ostreed-automatic.timer || true
+systemctl enable tailscaled.service greetd.service power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service || true
+systemctl disable rpm-ostreed-automatic.timer uupd.timer || true
+systemctl --global enable topgrade.timer || true
+chmod 0440 /etc/sudoers.d/* 2>/dev/null || true
 
 # Configurazione identità OS e ID immagine
 sed -i '/^IMAGE_ID=/d' /usr/lib/os-release || true

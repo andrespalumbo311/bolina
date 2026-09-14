@@ -1,0 +1,2 @@
+# Allow wheel group to run bootc upgrade without password for automated topgrade
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/bootc upgrade

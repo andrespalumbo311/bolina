@@ -1,0 +1,15 @@
+[Unit]
+Description=Topgrade System and User Package Updates
+Documentation=https://github.com/topgrade-rs/topgrade
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/topgrade
+StandardOutput=journal
+StandardError=journal
+TimeoutSec=1800
+
+[Install]
+WantedBy=default.target
