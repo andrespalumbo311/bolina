@@ -13,7 +13,7 @@ ARG UUPD_VERSION="v1.4.0"
 # renovate: datasource=github-releases depName=trifectatechfoundation/sudo-rs
 ARG SUDO_RS_VERSION="v0.2.15"
 # renovate: datasource=github-releases depName=uutils/coreutils
-ARG COREUTILS_VERSION="0.11.0"
+ARG COREUTILS_VERSION="0.12.0"
 # renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
 ARG AGY_VERSION="1.2.4"
 # renovate: datasource=github-releases depName=feschber/lan-mouse
