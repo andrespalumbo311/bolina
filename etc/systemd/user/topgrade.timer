@@ -1,6 +1,7 @@
 [Unit]
 Description=Topgrade System and User Package Updates Timer
 Documentation=https://github.com/topgrade-rs/topgrade
+ConditionUser=!@system
 
 [Timer]
 OnBootSec=10min
