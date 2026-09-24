@@ -1,0 +1,10 @@
+/* Permetti agli utenti del gruppo 'wheel' di applicare le soglie di carica della batteria via DMS senza password */
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.policykit.exec" &&
+        action.lookup("program") == "/usr/bin/sh" &&
+        action.lookup("command_line") &&
+        action.lookup("command_line").indexOf("/sys/class/power_supply/BAT") !== -1 &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});

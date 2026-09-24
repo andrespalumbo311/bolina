@@ -1,8 +1,8 @@
 /* Allow members of the wheel group to manage scx schedulers without password */
 polkit.addRule(function(action, subject) {
     if ((action.id == "org.cachyos.scx.manager" || 
-         action.id == "org.freedesktop.policykit.exec" && 
-         action.details.program == "/usr/bin/scx_loader") &&
+         (action.id == "org.freedesktop.policykit.exec" && 
+          action.lookup("program") == "/usr/bin/scx_loader")) &&
         subject.isInGroup("wheel")) {
         return polkit.Result.YES;
     }
