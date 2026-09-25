@@ -15,7 +15,7 @@ ARG SUDO_RS_VERSION="v0.2.15"
 # renovate: datasource=github-releases depName=uutils/coreutils
 ARG COREUTILS_VERSION="0.12.0"
 # renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
-ARG AGY_VERSION="1.2.10"
+ARG AGY_VERSION="1.2.11"
 # renovate: datasource=github-releases depName=feschber/lan-mouse
 ARG LAN_MOUSE_VERSION="v0.11.0"
 
