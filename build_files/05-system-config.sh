@@ -79,3 +79,5 @@ rm -rf /var/lib/dnf \
 
 # Generazione deterministica della cache fontconfig di sistema (evita desync mtime a epoch 0 per emoji e font)
 SOURCE_DATE_EPOCH=1700000000 fc-cache -s -f
+# Rimozione CACHEDIR.TAG per impedire a rpm-ostree/rechunker di svuotare la cache di sistema
+rm -f /usr/lib/fontconfig/cache/CACHEDIR.TAG
