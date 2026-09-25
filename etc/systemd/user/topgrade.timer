@@ -4,7 +4,7 @@ Documentation=https://github.com/topgrade-rs/topgrade
 ConditionUser=!@system
 
 [Timer]
-OnCalendar=daily
+OnCalendar=*-*-* 07:00:00
 Persistent=true
 RandomizedDelaySec=15min
 
