@@ -29,3 +29,7 @@ This repository defines **Bolina**, a generic cloud-native Fedora Atomic base im
 ### 4. Build Pipeline & Package Integrity
 - Verify exact package names (e.g. with `dnf list` or repo queries) before updating `build_files/`.
 - Maintain deterministic build layers: pin versions using `ARG` with Renovate annotations, avoid `date` timestamps, and preserve `.keep` files in empty directories.
+
+### 5. Post-Work Commit & Push Protocol
+- Upon concluding any verified modification, bug fix, or dependency update, always stage all repository changes, commit using conventional commit semantics (`feat:`, `fix:`, `chore:`, `docs:`), and push immediately to GitHub (`git push origin main`). Never leave uncommitted or unpushed work at the end of a session.
+
