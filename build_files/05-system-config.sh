@@ -60,6 +60,21 @@ if [ -f /usr/lib/tmpfiles.d/dms-greeter.conf ]; then
     sed -i 's/0750/0775/g' /usr/lib/tmpfiles.d/dms-greeter.conf
 fi
 
+# Correzione del bug upstream dms-greeter: sblocco ibrido impronta/password
+# (ripristina la transizione automatica annullando l'attesa fprint quando viene inserita la password)
+if [ -f /usr/share/quickshell/dms/Modules/Greetd/GreeterContent.qml ]; then
+    python3 -c '
+path = "/usr/share/quickshell/dms/Modules/Greetd/GreeterContent.qml"
+with open(path, "r", encoding="utf-8") as f:
+    content = f.read()
+target = """        if (Greetd.state !== GreetdState.Inactive) {\n            if (pendingPasswordResponse && submitPassword)\n                submitBufferedPassword();\n            else if (submitPassword)\n                passwordSubmitRequested = true;\n            return;\n        }"""
+replacement = """        if (Greetd.state !== GreetdState.Inactive) {\n            if (pendingPasswordResponse && submitPassword)\n                submitBufferedPassword();\n            else if (submitPassword) {\n                passwordSubmitRequested = true;\n                root.requestPasswordSessionTransition();\n            }\n            return;\n        }"""
+if target in content:
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content.replace(target, replacement))
+'
+fi
+
 # Silenzia warning di deprecazione e transizione console in niri-session su VT1
 if [ -f /usr/bin/niri-session ]; then
     sed -i '/# Reset failed state/i \    printf "\\033[H\\033[2J\\033[3J" 2>/dev/null || true' /usr/bin/niri-session
