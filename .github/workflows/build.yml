@@ -13,7 +13,6 @@ on:
       - 'LICENSE'
       - 'artifacthub-repo.yml'
       - '.gitignore'
-      - '.github/dependabot.yml'
       - '.github/renovate.json5'
   schedule:
     - cron: '05 10 * * *'  # 10:05am UTC everyday
@@ -29,7 +28,6 @@ on:
       - 'LICENSE'
       - 'artifacthub-repo.yml'
       - '.gitignore'
-      - '.github/dependabot.yml'
       - '.github/renovate.json5'
   workflow_dispatch:
 
@@ -43,7 +41,7 @@ env:
   STORAGE_DRIVER: "overlay"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.brand_name}}-${{ inputs.stream_name }}
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -114,6 +112,7 @@ jobs:
           sep-annotations: " "
 
       - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
@@ -174,11 +173,6 @@ jobs:
             --build-arg GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
             --tag localhost/${{ env.IMAGE_NAME }}:latest \
             .
-
-          # Apply all tags from metadata with sudo buildah
-          for tag in ${{ steps.metadata.outputs.tags }}; do
-            sudo buildah tag localhost/${{ env.IMAGE_NAME }}:latest $tag
-          done
 
       - name: Clean up temporary build files
         if: always()

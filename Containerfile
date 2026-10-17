@@ -18,8 +18,12 @@ ARG COREUTILS_VERSION="0.12.0"
 ARG AGY_VERSION="1.4.0"
 # renovate: datasource=github-releases depName=feschber/lan-mouse
 ARG LAN_MOUSE_VERSION="v0.11.0"
+# renovate: datasource=github-releases depName=ryanoasis/nerd-fonts
+ARG NERD_FONTS_VERSION="v3.5.1"
+ARG BASS_COMMIT="79b62958ecf4e87334f24d6743e5766475bcf4d0"
+ARG BASS_SHA="4d45341cad4e7e9734a5928cc60da9de64499301643a4988cfd7f518c0c42e54"
 
-# Download e verifica utility (Starship, Topgrade, uupd, sudo-rs, coreutils)
+# Download e verifica utility (Starship, Topgrade, uupd, sudo-rs, coreutils, lan-mouse, bass, nerd-fonts)
 RUN mkdir -p /tmp/verify /tmp/bin && \
     gh_curl() { \
         if [ -n "$GITHUB_TOKEN" ]; then \
@@ -56,11 +60,6 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     curl -fsSL "$SUDO_RS_URL" -o /tmp/verify/sudo.tar.gz && \
     echo "$SUDO_RS_SHA  /tmp/verify/sudo.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/sudo.tar.gz --strip-components=1 && \
-    SU_RS_URL=$(echo "$SUDO_RS_ASSETS" | jq -r '.assets[] | select(.name | startswith("su-") and endswith(".tar.gz")) | .browser_download_url' | head -n 1) && \
-    SU_RS_SHA=$(echo "$SUDO_RS_ASSETS" | jq -r '.assets[] | select(.name | startswith("su-") and endswith(".tar.gz")) | .digest' | cut -d: -f2 | head -n 1) && \
-    curl -fsSL "$SU_RS_URL" -o /tmp/verify/su.tar.gz && \
-    echo "$SU_RS_SHA  /tmp/verify/su.tar.gz" | sha256sum --check && \
-    tar -xz -C /tmp/bin -f /tmp/verify/su.tar.gz --strip-components=1 && \
     # coreutils (uutils)
     COREUTILS_ASSETS=$(gh_curl https://api.github.com/repos/uutils/coreutils/releases/tags/${COREUTILS_VERSION}) && \
     COREUTILS_URL=$(echo "$COREUTILS_ASSETS" | jq -r '.assets[] | select(.name | contains("x86_64-unknown-linux-gnu.tar.gz")) | .browser_download_url') && \
@@ -82,13 +81,20 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     curl -fsSL "$LAN_MOUSE_URL" -o /tmp/verify/lan-mouse && \
     echo "$LAN_MOUSE_SHA  /tmp/verify/lan-mouse" | sha256sum --check && \
     mv /tmp/verify/lan-mouse /tmp/bin/lan-mouse && \
-    chmod +x /tmp/bin/* && \
-    rm -rf /tmp/verify
-
-# Download JetBrains Mono Nerd Font
-RUN mkdir -p /tmp/verify /tmp/fonts && \
-    curl -fsSL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz -o /tmp/verify/JetBrainsMono.tar.xz && \
+    # bass (fish plugin)
+    mkdir -p /tmp/fish && \
+    curl -fsSL "https://github.com/edc/bass/archive/${BASS_COMMIT}.tar.gz" -o /tmp/verify/bass.tar.gz && \
+    echo "${BASS_SHA}  /tmp/verify/bass.tar.gz" | sha256sum --check && \
+    tar -xz -C /tmp/fish -f /tmp/verify/bass.tar.gz --strip-components=2 "bass-${BASS_COMMIT}/functions" && \
+    # JetBrains Mono Nerd Font
+    NERD_FONTS_ASSETS=$(gh_curl https://api.github.com/repos/ryanoasis/nerd-fonts/releases/tags/${NERD_FONTS_VERSION}) && \
+    NERD_FONTS_URL=$(echo "$NERD_FONTS_ASSETS" | jq -r '.assets[] | select(.name == "JetBrainsMono.tar.xz") | .browser_download_url') && \
+    NERD_FONTS_SHA=$(echo "$NERD_FONTS_ASSETS" | jq -r '.assets[] | select(.name == "JetBrainsMono.tar.xz") | .digest' | cut -d: -f2) && \
+    curl -fsSL "$NERD_FONTS_URL" -o /tmp/verify/JetBrainsMono.tar.xz && \
+    echo "$NERD_FONTS_SHA  /tmp/verify/JetBrainsMono.tar.xz" | sha256sum --check && \
+    mkdir -p /tmp/fonts && \
     tar -xf /tmp/verify/JetBrainsMono.tar.xz -C /tmp/fonts && \
+    chmod +x /tmp/bin/* && \
     rm -rf /tmp/verify
 
 # STAGE 2: Immagine Finale
@@ -101,11 +107,12 @@ COPY --from=builder /tmp/bin/uupd /usr/bin/uupd
 COPY --from=builder /tmp/bin/sudo /usr/bin/sudo-rs
 COPY --from=builder /tmp/bin/visudo /usr/bin/visudo-rs
 COPY --from=builder /tmp/bin/sudoedit /usr/bin/sudoedit-rs
-COPY --from=builder /tmp/bin/su /usr/bin/su-rs
 COPY --from=builder /tmp/bin/coreutils /usr/bin/uutils-coreutils
 COPY --from=builder /tmp/bin/antigravity /usr/bin/antigravity
 COPY --from=builder /tmp/bin/lan-mouse /usr/bin/lan-mouse
 COPY --from=builder /tmp/fonts /usr/share/fonts/JetBrainsMono
+COPY --from=builder /tmp/fish/bass.fish /usr/share/fish/vendor_functions.d/bass.fish
+COPY --from=builder /tmp/fish/__bass.py /usr/share/fish/vendor_functions.d/__bass.py
 
 # Copia asset di build e configurazione nativa
 COPY build_files /tmp/build_files

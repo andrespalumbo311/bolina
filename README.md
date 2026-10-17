@@ -68,14 +68,17 @@ sudo systemctl reboot
 
 ### Upgrades and Rollbacks
 
-Automatic updates are handled by `uupd.timer`. To manage updates manually:
+Automatic system and application updates are handled by `topgrade.timer`. To manage updates manually:
 
 ```bash
-# Check and apply updates
-uupd
+# Check and apply all system and user updates (bootc, Flatpaks, containers)
+topgrade
 
 # Check deployment status
 bootc status
+
+# Check for OS image updates directly
+sudo bootc upgrade
 
 # Rollback to the previous deployment
 sudo bootc rollback

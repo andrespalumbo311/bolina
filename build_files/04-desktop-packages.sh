@@ -9,7 +9,6 @@ dnf5 install -y \
     brightnessctl grim slurp \
     pavucontrol kitty pamixer fastfetch \
     libva-intel-media-driver libva-utils \
-    scx-manager python3-pyqt6 \
     easyeffects lsp-plugins \
     nautilus gvfs-mtp gvfs-smb \
     gnome-keyring gnome-keyring-pam \

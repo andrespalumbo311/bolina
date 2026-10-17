@@ -26,8 +26,8 @@ rm -f /etc/kernel/install.conf
 ln -sf /usr/bin/sudo-rs /usr/bin/sudo
 ln -sf /usr/bin/visudo-rs /usr/bin/visudo
 ln -sf /usr/bin/sudoedit-rs /usr/bin/sudoedit
-chown root:root /usr/bin/sudo-rs /usr/bin/su-rs || true
-chmod 4755 /usr/bin/sudo-rs /usr/bin/su-rs || true
+chown root:root /usr/bin/sudo-rs
+chmod 4755 /usr/bin/sudo-rs
 
 KVER=$(ls /lib/modules | grep cachyos | head -n 1)
 depmod -a $KVER
@@ -42,4 +42,3 @@ fi
 # Pulizia post-installazione per bootc lint
 rm -rf /boot/* /tmp/bin
 dnf5 -y copr disable bieszczaders/kernel-cachyos-lto || true
-dnf5 -y copr disable dejan/rpms || true

@@ -13,12 +13,6 @@ dnf5 install -y \
 
 sed -i 's|SHELL=/bin/bash|SHELL=/usr/bin/fish|' /etc/default/useradd
 
-# Installazione plugin Bass (per compatibilità script Bash in Fish)
-git clone https://github.com/edc/bass.git /tmp/bass
-mkdir -p /usr/share/fish/vendor_functions.d
-cp /tmp/bass/functions/bass.fish /usr/share/fish/vendor_functions.d/
-rm -rf /tmp/bass
-
 # Ottimizzazione I/O (ADIOS) - Sintassi Origami OS con deviazione MicroSD su bfq
 mkdir -p /etc/udev/rules.d
 echo 'ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"' > /etc/udev/rules.d/60-ioschedulers.rules

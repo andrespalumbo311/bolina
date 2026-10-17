@@ -12,7 +12,7 @@ fi
 chmod +x /etc/skel/.config/niri/scripts/*.sh || true
 dconf update || true
 
-systemctl enable tailscaled.service greetd.service power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service || true
+systemctl enable tailscaled.service greetd.service power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service
 systemctl disable rpm-ostreed-automatic.timer uupd.timer || true
 systemctl --global enable topgrade.timer || true
 chmod 0440 /etc/sudoers.d/* 2>/dev/null || true
@@ -72,6 +72,8 @@ replacement = """        if (Greetd.state !== GreetdState.Inactive) {\n         
 if target in content:
     with open(path, "w", encoding="utf-8") as f:
         f.write(content.replace(target, replacement))
+else:
+    raise SystemExit("ERRORE: target GreeterContent.qml non trovato!")
 '
 fi
 
@@ -81,6 +83,12 @@ if [ -f /usr/bin/niri-session ]; then
     sed -i 's/systemctl --user import-environment/systemctl --user import-environment 2>\/dev\/null || true/' /usr/bin/niri-session
     sed -i 's/dbus-update-activation-environment --all$/dbus-update-activation-environment --all >\/dev\/null 2>\&1 || true/' /usr/bin/niri-session
 fi
+
+# Disabilitazione repository COPR prima della pulizia DNF
+dnf5 -y copr disable yalter/niri || true
+dnf5 -y copr disable avengemedia/dms || true
+dnf5 -y copr disable avengemedia/danklinux || true
+dnf5 -y copr disable bieszczaders/kernel-cachyos-addons || true
 
 dnf5 clean all
 
