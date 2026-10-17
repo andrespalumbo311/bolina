@@ -5,7 +5,7 @@ FROM ghcr.io/ublue-os/base-main:latest@sha256:f82d04c81192f3e8e991e18140ee97eb92
 ARG GITHUB_TOKEN=""
 
 # renovate: datasource=github-releases depName=starship/starship
-ARG STARSHIP_VERSION="v1.26.0"
+ARG STARSHIP_VERSION="v1.27.0"
 # renovate: datasource=github-releases depName=topgrade-rs/topgrade
 ARG TOPGRADE_VERSION="v17.13.1"
 # renovate: datasource=github-releases depName=ublue-os/uupd
