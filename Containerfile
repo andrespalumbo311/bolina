@@ -9,7 +9,7 @@ ARG STARSHIP_VERSION="v1.27.0"
 # renovate: datasource=github-releases depName=topgrade-rs/topgrade
 ARG TOPGRADE_VERSION="v17.13.1"
 # renovate: datasource=github-releases depName=ublue-os/uupd
-ARG UUPD_VERSION="v1.5.0"
+ARG UUPD_VERSION="v1.5.1"
 # renovate: datasource=github-releases depName=trifectatechfoundation/sudo-rs
 ARG SUDO_RS_VERSION="v0.2.15"
 # renovate: datasource=github-releases depName=uutils/coreutils
