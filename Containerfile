@@ -1,6 +1,6 @@
 # STAGE 1: Download utility custom
 # Verify layer cache performance on GHCR build-cache tag
-FROM ghcr.io/ublue-os/base-main:latest@sha256:0e2d52b3c3d3b98556c2e2c7c56583b607adbe651b3310f93f5409d66f97828e AS builder
+FROM ghcr.io/ublue-os/base-main:latest@sha256:8d39d6cc11a50d1260a34112d2bc6009497566f42dd0382000270a1a24061046 AS builder
 
 ARG GITHUB_TOKEN=""
 
@@ -98,7 +98,7 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     rm -rf /tmp/verify
 
 # STAGE 2: Immagine Finale
-FROM ghcr.io/ublue-os/base-main:latest@sha256:0e2d52b3c3d3b98556c2e2c7c56583b607adbe651b3310f93f5409d66f97828e
+FROM ghcr.io/ublue-os/base-main:latest@sha256:8d39d6cc11a50d1260a34112d2bc6009497566f42dd0382000270a1a24061046
 
 # Copia dei binari custom dallo stage di build
 COPY --from=builder /tmp/bin/starship /usr/bin/starship
