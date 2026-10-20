@@ -7,7 +7,7 @@ ARG GITHUB_TOKEN=""
 # renovate: datasource=github-releases depName=starship/starship
 ARG STARSHIP_VERSION="v1.27.0"
 # renovate: datasource=github-releases depName=topgrade-rs/topgrade
-ARG TOPGRADE_VERSION="v17.14.0"
+ARG TOPGRADE_VERSION="v17.14.1"
 # renovate: datasource=github-releases depName=ublue-os/uupd
 ARG UUPD_VERSION="v1.5.1"
 # renovate: datasource=github-releases depName=trifectatechfoundation/sudo-rs
