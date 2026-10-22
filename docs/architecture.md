@@ -33,7 +33,7 @@ bolina/
 │   ├── 01-copr.sh               # Repository bootstrapping (COPRs)
 │   ├── 02-kernel.sh             # CachyOS kernel replacement & Dracut initramfs
 │   ├── 03-cli-packages.sh       # Terminal toolchains, shell utilities, signing tools
-│   ├── 04-desktop-packages.sh   # Desktop environment, Niri, DMS, Qt/GTK portals
+│   ├── 04-desktop-packages.sh   # Desktop environment, Niri, DMS, Qt runtime/QML modules, GTK portals
 │   └── 05-system-config.sh      # User configuration, systemd services, cleanup
 ├── etc/                         # Declarative OS configurations copied into /etc
 │   ├── greetd/                  # Display manager, hybrid biometric/PAM login

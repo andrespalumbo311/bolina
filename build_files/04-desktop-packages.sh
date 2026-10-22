@@ -12,7 +12,7 @@ dnf5 install -y \
     easyeffects lsp-plugins \
     nautilus gvfs-mtp gvfs-smb \
     gnome-keyring gnome-keyring-pam \
-    cups-pk-helper kf6-kimageformats qt6-qtimageformats \
+    cups-pk-helper kf6-kimageformats qt6-qtimageformats qt6-qtwebsockets-devel \
     accountsservice \
     jstest-gtk joystick \
     xdg-desktop-portal-gnome xdg-desktop-portal-gtk xdg-user-dirs-gtk
