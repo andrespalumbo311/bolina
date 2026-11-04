@@ -3,7 +3,7 @@ set -eoux pipefail
 
 echo "=== 04: Installing Desktop Environment, Wayland & Audio Utilities ==="
 dnf5 install -y \
-    niri dms dms-greeter \
+    niri dms dms-greeter dux-files dux-calendar \
     xdg-desktop-portal-wlr kde-connect \
     greetd fprintd fprintd-pam \
     brightnessctl grim slurp \
