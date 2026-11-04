@@ -5,3 +5,5 @@ _build_*
 output
 _build-*/**
 origami-bootc/
+target/
+**/target/

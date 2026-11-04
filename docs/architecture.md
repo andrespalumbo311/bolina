@@ -44,6 +44,8 @@ bolina/
 ├── docs/
 │   ├── architecture.md          # This document: system structure and directory layout
 │   └── historical-errors.md     # Living architectural memory of resolved base OS challenges
+├── tools/
+│   └── bolina-daemon/           # Compiled native Rust daemon: autorotate, physical chassis-lock wallpaper, input-sync
 ├── AGENTS.md                    # Coding standards and base image guidelines
 ├── Containerfile                # Root build definition
 └── Justfile                     # Local development recipes

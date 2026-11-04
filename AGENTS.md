@@ -33,3 +33,6 @@ This repository defines **Bolina**, a generic cloud-native Fedora Atomic base im
 ### 5. Post-Work Commit & Push Protocol
 - Upon concluding any verified modification, bug fix, or dependency update, always stage all repository changes, commit using conventional commit semantics (`feat:`, `fix:`, `chore:`, `docs:`), and push immediately to GitHub (`git push origin main`). Never leave uncommitted or unpushed work at the end of a session.
 
+### 6. Language Preference for System Daemons & Helpers
+- Prefer Rust over Python for all custom system tooling, background daemons, hardware sensors, and session helpers. Rust provides native execution speed, zero runtime overhead, memory safety, and standalone self-contained binaries that do not require host Python libraries. Reusable tools are developed under `tools/` and compiled during OCI image construction or CI workflows.
+
