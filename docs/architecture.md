@@ -56,6 +56,6 @@ bolina/
 1. **GitHub Actions Build (`build.yml`):**
    - Stage 1 (`builder`): Downloads fonts, shell plugins, and utilities with deterministic SHA256 verification.
    - Stage 2 (assembly): Executes `build_files/*.sh` atomically in memory.
-   - Stage 3 (`rechunker`): Repackages image using `rpm-ostree compose build-chunked-oci --max-layers 64` aligned with `--previous-build`.
+   - Stage 3 (`rechunker`): Repackages image using native Chunked-OCI composition (`--bootc --max-layers 64`) aligned with `--previous-build`.
 2. **Registry Dispatch:**
    - On push to `main`, triggers a repository dispatch to `bolina-fleet` with `FLEET_DISPATCH_TOKEN` to initiate automated micro-layer builds.

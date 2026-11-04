@@ -4,8 +4,8 @@ This repository defines **Bolina**, a generic cloud-native Fedora Atomic base im
 
 ## Operating Context & Constraints
 - **Hardware Target:** Generic x86_64 cloud-native workstation/laptop baseline. Device-specific quirks (ThinkPad X390) are isolated in `bolina-fleet`.
-- **Host System:** Fedora Atomic / ublue (bootc / ostree).
-- **Filesystem Immutability:** `/usr` is read-only. Never use `rpm-ostree install` or hot-patch system directories directly on the host unless explicitly ordered.
+- **Host System:** Fedora Atomic / ublue (pure bootc).
+- **Filesystem Immutability:** `/usr` is read-only. System updates and deployments are managed exclusively through **bootc** (`bootc upgrade`). Never attempt host-level package layering or hot-patch system directories directly on the host unless explicitly ordered.
 - **Persistence Model:**
   - System changes are codified in `Containerfile`, modular scripts in `build_files/`, or runtime configs in `/etc` and `/usr/lib/tmpfiles.d/`.
   - Applications and user tools belong in isolated runtimes: Flatpak, Distrobox, or Homebrew.

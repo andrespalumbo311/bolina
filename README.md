@@ -35,7 +35,7 @@ This project directly derives from **[Universal Blue](https://universal-blue.org
 * **Network:** TCP BBR congestion control, Cake qdisc, and TCP Fast Open (`net.ipv4.tcp_fastopen = 3`).
 
 ### OCI Chunking & Verification
-* **Chunked-OCI:** Post-build step executes `rpm-ostree compose build-chunked-oci` with `--max-layers 64` to decompose the image into package-level layers, minimizing update download sizes.
+* **Chunked-OCI:** Post-build step builds semantic Chunked-OCI layers (`--bootc --max-layers 64`) to decompose the image into package-level layers, minimizing update download sizes under bootc.
 * **Signing:** Container images are cryptographically signed with [Cosign](https://github.com/sigstore/cosign).
 
 ---
