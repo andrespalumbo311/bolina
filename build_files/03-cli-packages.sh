@@ -4,12 +4,13 @@ set -eoux pipefail
 echo "=== 03: Installing CLI System Tooling & I/O Optimizations ==="
 dnf5 install -y \
     git tailscale \
-    inotify-tools powertop power-profiles-daemon freerdp \
+    ntpd-rs powertop power-profiles-daemon freerdp \
     scx-scheds scx-tools scx-manager flatpak udisks2 \
-    python3-pyqt6 \
     parted dosfstools exfatprogs e2fsprogs \
     fish zoxide fzf \
     fuse fuse-libs
+
+dnf5 remove -y chrony || true
 
 sed -i 's|SHELL=/bin/bash|SHELL=/usr/bin/fish|' /etc/default/useradd
 

@@ -12,10 +12,28 @@ fi
 chmod +x /etc/skel/.config/niri/scripts/*.sh || true
 dconf update || true
 
-systemctl enable tailscaled.service greetd.service power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service
-systemctl disable rpm-ostreed-automatic.timer uupd.timer || true
+systemctl enable ntpd-rs.service tailscaled.service greetd.service power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service
+systemctl disable rpm-ostreed-automatic.timer uupd.timer chronyd.service || true
 systemctl --global enable topgrade.timer || true
 chmod 0440 /etc/sudoers.d/* 2>/dev/null || true
+
+# Sostituzione drop-in multicall Rust per coreutils, findutils e diffutils
+mkdir -p /usr/local/bin
+if [ -x /usr/bin/uutils-coreutils ]; then
+    for cmd in $(/usr/bin/uutils-coreutils --list); do
+        ln -sf /usr/bin/uutils-coreutils "/usr/local/bin/$cmd"
+    done
+fi
+if [ -x /usr/bin/uutils-find ]; then
+    ln -sf /usr/bin/uutils-find /usr/local/bin/find
+fi
+if [ -x /usr/bin/uutils-xargs ]; then
+    ln -sf /usr/bin/uutils-xargs /usr/local/bin/xargs
+fi
+if [ -x /usr/bin/uutils-diffutils ]; then
+    ln -sf /usr/bin/uutils-diffutils /usr/local/bin/diff
+    ln -sf /usr/bin/uutils-diffutils /usr/local/bin/cmp
+fi
 
 # Configurazione identità OS e ID immagine
 sed -i '/^IMAGE_ID=/d' /usr/lib/os-release || true

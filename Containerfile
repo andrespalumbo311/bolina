@@ -17,6 +17,10 @@ ARG UUPD_VERSION="v1.5.7"
 ARG SUDO_RS_VERSION="v0.2.15"
 # renovate: datasource=github-releases depName=uutils/coreutils
 ARG COREUTILS_VERSION="0.12.0"
+# renovate: datasource=github-releases depName=uutils/findutils
+ARG FINDUTILS_VERSION="0.11.0"
+# renovate: datasource=github-releases depName=uutils/diffutils
+ARG DIFFUTILS_VERSION="v0.6.0"
 # renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
 ARG AGY_VERSION="1.5.0"
 # renovate: datasource=github-releases depName=feschber/lan-mouse
@@ -87,8 +91,24 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     # bolina-daemon
     BOLINA_DAEMON_ASSETS=$(gh_curl https://api.github.com/repos/andrespalumbo311/bolina/releases/tags/${BOLINA_DAEMON_TAG}) && \
     BOLINA_DAEMON_URL=$(echo "$BOLINA_DAEMON_ASSETS" | jq -r '.assets[] | select(.name == "bolina-daemon-x86_64.tar.gz") | .browser_download_url') && \
+    BOLINA_DAEMON_SHA=$(echo "$BOLINA_DAEMON_ASSETS" | jq -r '.assets[] | select(.name == "bolina-daemon-x86_64.tar.gz") | .digest' | cut -d: -f2) && \
     curl -fsSL "$BOLINA_DAEMON_URL" -o /tmp/verify/bolina-daemon.tar.gz && \
+    echo "$BOLINA_DAEMON_SHA  /tmp/verify/bolina-daemon.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/bolina-daemon.tar.gz bolina-daemon && \
+    # findutils (uutils)
+    FINDUTILS_ASSETS=$(gh_curl https://api.github.com/repos/uutils/findutils/releases/tags/${FINDUTILS_VERSION}) && \
+    FINDUTILS_URL=$(echo "$FINDUTILS_ASSETS" | jq -r '.assets[] | select(.name == "findutils-x86_64-unknown-linux-musl.tar.xz") | .browser_download_url') && \
+    FINDUTILS_SHA=$(echo "$FINDUTILS_ASSETS" | jq -r '.assets[] | select(.name == "findutils-x86_64-unknown-linux-musl.tar.xz") | .digest' | cut -d: -f2) && \
+    curl -fsSL "$FINDUTILS_URL" -o /tmp/verify/findutils.tar.xz && \
+    echo "$FINDUTILS_SHA  /tmp/verify/findutils.tar.xz" | sha256sum --check && \
+    tar -xf /tmp/verify/findutils.tar.xz -C /tmp/bin --strip-components=1 "findutils-x86_64-unknown-linux-musl/find" "findutils-x86_64-unknown-linux-musl/xargs" && \
+    # diffutils (uutils)
+    DIFFUTILS_ASSETS=$(gh_curl https://api.github.com/repos/uutils/diffutils/releases/tags/${DIFFUTILS_VERSION}) && \
+    DIFFUTILS_URL=$(echo "$DIFFUTILS_ASSETS" | jq -r '.assets[] | select(.name == "diffutils-x86_64-unknown-linux-gnu.tar.xz") | .browser_download_url') && \
+    DIFFUTILS_SHA=$(echo "$DIFFUTILS_ASSETS" | jq -r '.assets[] | select(.name == "diffutils-x86_64-unknown-linux-gnu.tar.xz") | .digest' | cut -d: -f2) && \
+    curl -fsSL "$DIFFUTILS_URL" -o /tmp/verify/diffutils.tar.xz && \
+    echo "$DIFFUTILS_SHA  /tmp/verify/diffutils.tar.xz" | sha256sum --check && \
+    tar -xf /tmp/verify/diffutils.tar.xz -C /tmp/bin --strip-components=1 "diffutils-x86_64-unknown-linux-gnu/diffutils" && \
     # bass (fish plugin)
     mkdir -p /tmp/fish && \
     curl -fsSL "https://github.com/edc/bass/archive/${BASS_COMMIT}.tar.gz" -o /tmp/verify/bass.tar.gz && \
@@ -117,6 +137,9 @@ COPY --from=builder /tmp/bin/sudo /usr/bin/sudo-rs
 COPY --from=builder /tmp/bin/visudo /usr/bin/visudo-rs
 COPY --from=builder /tmp/bin/sudoedit /usr/bin/sudoedit-rs
 COPY --from=builder /tmp/bin/coreutils /usr/bin/uutils-coreutils
+COPY --from=builder /tmp/bin/find /usr/bin/uutils-find
+COPY --from=builder /tmp/bin/xargs /usr/bin/uutils-xargs
+COPY --from=builder /tmp/bin/diffutils /usr/bin/uutils-diffutils
 COPY --from=builder /tmp/bin/antigravity /usr/bin/antigravity
 COPY --from=builder /tmp/bin/lan-mouse /usr/bin/lan-mouse
 COPY --from=builder /tmp/fonts /usr/share/fonts/JetBrainsMono
