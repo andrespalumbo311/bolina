@@ -1,6 +1,6 @@
 # STAGE 0: Build native Rust utilities (bolina-daemon)
 # renovate: datasource=docker depName=rust
-ARG RUST_BUILDER_IMAGE="docker.io/library/rust:1-alpine"
+ARG RUST_BUILDER_IMAGE="docker.io/library/rust:1-alpine@sha256:27cd9befd4a05d6f6eb407c3e28365f5092f008bfc5946207cca76ae5179ef23"
 FROM ${RUST_BUILDER_IMAGE} AS rust-builder
 WORKDIR /src
 COPY tools/bolina-daemon tools/bolina-daemon
