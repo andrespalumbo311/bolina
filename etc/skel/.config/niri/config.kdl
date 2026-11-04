@@ -3,6 +3,10 @@
 // Check the wiki for a full description of the configuration:
 // https://yalter.github.io/niri/Configuration:-Introduction
 
+environment {
+    XDG_MENU_PREFIX "plasma-"
+}
+
 // Input device configuration (modular include)
 include "dms/input.kdl"
 
@@ -228,4 +232,5 @@ include "dms/cursor.kdl"
 include "dms/outputs.kdl"
 include "dms/windowrules.kdl"
 
+include optional=true "dms/binds-next.kdl"
 include "dms/binds.kdl"

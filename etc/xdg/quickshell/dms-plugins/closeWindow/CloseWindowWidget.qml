@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.Common
-import qs.Widgets
+import qs.DCommon.Widgets
 import qs.Services
 import qs.Modules.Plugins
 
@@ -24,7 +24,7 @@ PluginComponent {
     }
 
     horizontalBarPill: Component {
-        DankIcon {
+        DIcon {
             name: "close"
             size: root.iconSize
             color: root.hasWindow ? Theme.error : Theme.surfaceVariantText
@@ -33,7 +33,7 @@ PluginComponent {
     }
 
     verticalBarPill: Component {
-        DankIcon {
+        DIcon {
             name: "close"
             size: root.iconSize
             color: root.hasWindow ? Theme.error : Theme.surfaceVariantText

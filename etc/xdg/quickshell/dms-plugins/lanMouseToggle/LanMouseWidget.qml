@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Common
-import qs.Widgets
+import qs.DCommon.Widgets
 import qs.Services
 import qs.Modules.Plugins
 
@@ -54,7 +54,7 @@ PluginComponent {
     }
 
     horizontalBarPill: Component {
-        DankIcon {
+        DIcon {
             name: "mouse"
             size: root.iconSize
             color: root.isEnabled ? Theme.primary : Theme.surfaceVariantText
@@ -63,7 +63,7 @@ PluginComponent {
     }
 
     verticalBarPill: Component {
-        DankIcon {
+        DIcon {
             name: "mouse"
             size: root.iconSize
             color: root.isEnabled ? Theme.primary : Theme.surfaceVariantText
