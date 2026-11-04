@@ -14,6 +14,8 @@ on:
       - 'artifacthub-repo.yml'
       - '.gitignore'
       - '.github/renovate.json5'
+      - 'tools/**'
+      - '.github/workflows/bolina-daemon.yml'
   schedule:
     - cron: '05 10 * * *'  # 10:05am UTC everyday
   push:
@@ -29,6 +31,8 @@ on:
       - 'artifacthub-repo.yml'
       - '.gitignore'
       - '.github/renovate.json5'
+      - 'tools/**'
+      - '.github/workflows/bolina-daemon.yml'
   workflow_dispatch:
 
 env:

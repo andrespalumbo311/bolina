@@ -27,6 +27,7 @@ flowchart TD
 ```text
 bolina/
 ├── .github/workflows/
+│   ├── bolina-daemon.yml        # Dedicated Rust daemon release builder (triggered only on tools/ changes)
 │   ├── build.yml                # Main OCI container build and 64-layer rechunker
 │   └── build-disk.yml           # Bootable raw disk and ISO image generator
 ├── build_files/                 # Modular build pipeline scripts

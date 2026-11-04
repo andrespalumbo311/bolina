@@ -1,0 +1,65 @@
+---
+name: Release bolina-daemon prebuilt
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/bolina-daemon/**'
+      - '.github/workflows/bolina-daemon.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build static binary & publish release
+    runs-on: ubuntu-26.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Install Rust toolchain & musl tools
+        run: |
+          rustup set profile minimal
+          rustup toolchain install stable --target x86_64-unknown-linux-musl
+          rustup default stable
+          sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - name: Run unit & parity tests
+        run: |
+          cd tools/bolina-daemon
+          cargo test
+
+      - name: Build static release binary (musl)
+        run: |
+          cd tools/bolina-daemon
+          cargo build --release --target x86_64-unknown-linux-musl
+          mkdir -p ../../dist
+          tar -czvf ../../dist/bolina-daemon-x86_64.tar.gz -C target/x86_64-unknown-linux-musl/release bolina-daemon
+          cd ../../dist
+          sha256sum bolina-daemon-x86_64.tar.gz > bolina-daemon-x86_64.tar.gz.sha256
+
+      - name: Publish or update GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="daemon-latest"
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Release $TAG_NAME already exists. Uploading assets with --clobber..."
+            gh release upload "$TAG_NAME" dist/bolina-daemon-x86_64.tar.gz dist/bolina-daemon-x86_64.tar.gz.sha256 --clobber
+          else
+            echo "Creating new release $TAG_NAME..."
+            gh release create "$TAG_NAME" dist/bolina-daemon-x86_64.tar.gz dist/bolina-daemon-x86_64.tar.gz.sha256 \
+              --title "bolina-daemon Prebuilt Binary" \
+              --notes "Automated standalone static-pie build of bolina-daemon for Bolina OS"
+          fi
+
+      - name: Trigger container image build
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yml || echo "Workflow build.yml trigger skipped or not permitted"

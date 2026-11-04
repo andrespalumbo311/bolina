@@ -1,18 +1,11 @@
-# STAGE 0: Build native Rust utilities (bolina-daemon)
-# renovate: datasource=docker depName=rust
-ARG RUST_BUILDER_IMAGE="docker.io/library/rust:1-alpine"
-FROM ${RUST_BUILDER_IMAGE} AS rust-builder
-WORKDIR /src
-COPY tools/bolina-daemon tools/bolina-daemon
-RUN cd tools/bolina-daemon && \
-    cargo build --release && \
-    cp target/release/bolina-daemon /tmp/bolina-daemon
-
 # STAGE 1: Download utility custom
 # Verify layer cache performance on GHCR build-cache tag
 FROM ghcr.io/ublue-os/base-main:latest@sha256:c7783db8fdcc686cbe37df39deb7a71d34341c19e87cd1bb9c2f29a452781db5 AS builder
 
 ARG GITHUB_TOKEN=""
+
+# renovate: datasource=github-releases depName=andrespalumbo311/bolina
+ARG BOLINA_DAEMON_TAG="daemon-latest"
 
 # renovate: datasource=github-releases depName=starship/starship
 ARG STARSHIP_VERSION="v1.27.0"
@@ -91,6 +84,11 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     curl -fsSL "$LAN_MOUSE_URL" -o /tmp/verify/lan-mouse && \
     echo "$LAN_MOUSE_SHA  /tmp/verify/lan-mouse" | sha256sum --check && \
     mv /tmp/verify/lan-mouse /tmp/bin/lan-mouse && \
+    # bolina-daemon
+    BOLINA_DAEMON_ASSETS=$(gh_curl https://api.github.com/repos/andrespalumbo311/bolina/releases/tags/${BOLINA_DAEMON_TAG}) && \
+    BOLINA_DAEMON_URL=$(echo "$BOLINA_DAEMON_ASSETS" | jq -r '.assets[] | select(.name == "bolina-daemon-x86_64.tar.gz") | .browser_download_url') && \
+    curl -fsSL "$BOLINA_DAEMON_URL" -o /tmp/verify/bolina-daemon.tar.gz && \
+    tar -xz -C /tmp/bin -f /tmp/verify/bolina-daemon.tar.gz bolina-daemon && \
     # bass (fish plugin)
     mkdir -p /tmp/fish && \
     curl -fsSL "https://github.com/edc/bass/archive/${BASS_COMMIT}.tar.gz" -o /tmp/verify/bass.tar.gz && \
@@ -111,7 +109,7 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
 FROM ghcr.io/ublue-os/base-main:latest@sha256:c7783db8fdcc686cbe37df39deb7a71d34341c19e87cd1bb9c2f29a452781db5
 
 # Copia dei binari custom dallo stage di build
-COPY --from=rust-builder /tmp/bolina-daemon /usr/bin/bolina-daemon
+COPY --from=builder /tmp/bin/bolina-daemon /usr/bin/bolina-daemon
 COPY --from=builder /tmp/bin/starship /usr/bin/starship
 COPY --from=builder /tmp/bin/topgrade /usr/bin/topgrade
 COPY --from=builder /tmp/bin/uupd /usr/bin/uupd
