@@ -14,7 +14,7 @@ dconf update || true
 
 systemctl enable ntpd-rs.service tailscaled.service greetd.service power-profiles-daemon.service bluetooth.service bluetooth-poweroff.service
 systemctl disable rpm-ostreed-automatic.timer uupd.timer chronyd.service || true
-systemctl --global enable topgrade.timer || true
+systemctl --global enable topgrade.timer dsearch.service || true
 chmod 0440 /etc/sudoers.d/* 2>/dev/null || true
 
 # Sostituzione drop-in multicall Rust per coreutils, findutils e diffutils
