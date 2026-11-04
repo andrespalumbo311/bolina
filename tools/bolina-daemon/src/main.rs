@@ -1,4 +1,4 @@
-use bolina_daemon_lib::{autorotate, input_sync, wallpaper};
+use bolina_daemon_lib::{autorotate, input_sync, wacom, wallpaper};
 use clap::{Args, Parser, Subcommand};
 use std::path::PathBuf;
 
@@ -24,6 +24,9 @@ enum Commands {
 
     /// Synchronizes input-hardware.kdl into DMS input.kdl
     InputSync(InputSyncArgs),
+
+    /// Reset Wacom USB digitizer on resume from suspend
+    WacomReset,
 }
 
 #[derive(Args)]
@@ -126,6 +129,12 @@ fn main() {
                     eprintln!("[input-sync] Error: {}", e);
                     std::process::exit(1);
                 }
+            }
+        }
+        Commands::WacomReset => {
+            if let Err(e) = wacom::reset_wacom() {
+                eprintln!("[wacom-reset] Error: {}", e);
+                std::process::exit(1);
             }
         }
     }
