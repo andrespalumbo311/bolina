@@ -69,8 +69,9 @@ fi
 
 # Disabilitazione repository COPR prima della pulizia DNF
 dnf5 -y copr disable yalter/niri || true
-dnf5 -y copr disable avengemedia/dms || true
-dnf5 -y copr disable avengemedia/danklinux || true
+dnf5 -y copr disable duxlabs/dms || true
+dnf5 -y copr disable duxlabs/dux-repo || true
+rm -f /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:*.repo 2>/dev/null || true
 dnf5 -y copr disable bieszczaders/kernel-cachyos-addons || true
 
 dnf5 clean all
