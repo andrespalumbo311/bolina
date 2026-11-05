@@ -17,7 +17,7 @@ systemctl disable rpm-ostreed-automatic.timer uupd.timer chronyd.service || true
 systemctl --global enable topgrade.timer dsearch.service || true
 chmod 0440 /etc/sudoers.d/* 2>/dev/null || true
 
-# Sostituzione drop-in multicall Rust per coreutils, findutils e diffutils
+# Sostituzione drop-in multicall Rust per coreutils e findutils (verificate e conformi POSIX)
 mkdir -p /usr/local/bin
 if [ -x /usr/bin/uutils-coreutils ]; then
     for cmd in $(/usr/bin/uutils-coreutils --list); do
@@ -30,13 +30,6 @@ fi
 if [ -x /usr/bin/uutils-xargs ]; then
     ln -sf /usr/bin/uutils-xargs /usr/local/bin/xargs
 fi
-# uutils-diffutils (v0.6.0) non supporta ancora -r (ricorsione) o opzioni avanzate;
-# manteniamo il GNU diff originale in /usr/bin finché l'upstream non raggiunge la parità.
-# Il binario resta disponibile come /usr/bin/uutils-diffutils e costantemente aggiornato da Renovate.
-# if [ -x /usr/bin/uutils-diffutils ]; then
-#     ln -sf /usr/bin/uutils-diffutils /usr/local/bin/diff
-#     ln -sf /usr/bin/uutils-diffutils /usr/local/bin/cmp
-# fi
 
 # Configurazione identità OS e ID immagine
 sed -i '/^IMAGE_ID=/d' /usr/lib/os-release || true

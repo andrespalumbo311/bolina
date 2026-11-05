@@ -36,3 +36,7 @@ This repository defines **Bolina**, a generic cloud-native Fedora Atomic base im
 ### 6. Language Preference for System Daemons & Helpers
 - Prefer Rust over Python for all custom system tooling, background daemons, hardware sensors, and session helpers. Rust provides native execution speed, zero runtime overhead, memory safety, and standalone self-contained binaries that do not require host Python libraries. Reusable tools are developed under `tools/` and compiled during OCI image construction or CI workflows.
 
+### 7. Rust Drop-in Replacement Policy
+- Only integrate drop-in replacements that have demonstrated mature, 100% complete POSIX/GNU CLI parity (such as `uutils-coreutils`, `uutils-findutils`, `sudo-rs`, `ntpd-rs`).
+- Never blindly integrate WIP, incomplete, or experimental utility rewrites (such as `diffutils`, `sed`, `grep`, `tar`) based on arbitrary SemVer tags or release availability. Candidate tools must undergo explicit manual verification or official distribution packaging (e.g. Fedora stable repositories) before being exposed in system paths.
+
