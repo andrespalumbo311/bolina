@@ -30,10 +30,13 @@ fi
 if [ -x /usr/bin/uutils-xargs ]; then
     ln -sf /usr/bin/uutils-xargs /usr/local/bin/xargs
 fi
-if [ -x /usr/bin/uutils-diffutils ]; then
-    ln -sf /usr/bin/uutils-diffutils /usr/local/bin/diff
-    ln -sf /usr/bin/uutils-diffutils /usr/local/bin/cmp
-fi
+# uutils-diffutils (v0.6.0) non supporta ancora -r (ricorsione) o opzioni avanzate;
+# manteniamo il GNU diff originale in /usr/bin finché l'upstream non raggiunge la parità.
+# Il binario resta disponibile come /usr/bin/uutils-diffutils e costantemente aggiornato da Renovate.
+# if [ -x /usr/bin/uutils-diffutils ]; then
+#     ln -sf /usr/bin/uutils-diffutils /usr/local/bin/diff
+#     ln -sf /usr/bin/uutils-diffutils /usr/local/bin/cmp
+# fi
 
 # Configurazione identità OS e ID immagine
 sed -i '/^IMAGE_ID=/d' /usr/lib/os-release || true
