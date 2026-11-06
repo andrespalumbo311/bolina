@@ -53,8 +53,10 @@ jobs:
       - name: Install Rust toolchain and build dependencies
         if: steps.check_upstream.outputs.should_build == 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang libclang-dev libinput-dev libpango1.0-dev libcairo2-dev \
+          sudo apt-get purge -y needrestart || true
+          sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=l apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=l apt-get install -y --no-install-recommends \
+            clang libclang-dev libinput-dev libpango1.0-dev libcairo2-dev \
             libglib2.0-dev libpipewire-0.3-dev libgbm-dev libseat-dev libudev-dev libpixman-1-dev \
             libxkbcommon-dev wayland-protocols libwayland-dev libwayland-bin libdisplay-info-dev \
             libgtk-4-dev libadwaita-1-dev patch make pkg-config
