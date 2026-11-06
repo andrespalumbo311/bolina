@@ -20,7 +20,7 @@ ARG COREUTILS_VERSION="0.12.0"
 # renovate: datasource=github-releases depName=uutils/findutils
 ARG FINDUTILS_VERSION="0.11.0"
 # renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
-ARG AGY_VERSION="1.5.1"
+ARG AGY_VERSION="1.5.2"
 # renovate: datasource=github-releases depName=feschber/lan-mouse
 ARG LAN_MOUSE_VERSION="v0.11.0"
 # renovate: datasource=github-releases depName=ryanoasis/nerd-fonts
