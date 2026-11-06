@@ -104,7 +104,8 @@ jobs:
         if: steps.check_upstream.outputs.should_build == 'true'
         run: |
           cd /tmp/niri-tablet/niri-tablet-easysetup
-          cargo build --release --locked
+          sed -i 's/"v4_16"/"v4_14"/' Cargo.toml
+          cargo build --release
           cp target/release/niri-tablet-easysetup /tmp/dist/bin/niri-tablet-easysetup
           cp data/com.github.ggezus.NiriTabletEasySetup.desktop /tmp/dist/share/applications/
           cp -r data/icons/* /tmp/dist/share/icons/
