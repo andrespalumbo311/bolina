@@ -6,6 +6,8 @@ ARG GITHUB_TOKEN=""
 
 # renovate: datasource=github-releases depName=andrespalumbo311/bolina
 ARG BOLINA_DAEMON_TAG="daemon-latest"
+# renovate: datasource=github-releases depName=andrespalumbo311/bolina
+ARG NIRI_TABLET_TAG="niri-tablet-latest"
 
 # renovate: datasource=github-releases depName=starship/starship
 ARG STARSHIP_VERSION="v1.27.0"
@@ -93,6 +95,14 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     curl -fsSL "$BOLINA_DAEMON_URL" -o /tmp/verify/bolina-daemon.tar.gz && \
     echo "$BOLINA_DAEMON_SHA  /tmp/verify/bolina-daemon.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/bolina-daemon.tar.gz bolina-daemon && \
+    # niri-tablet
+    NIRI_TABLET_ASSETS=$(gh_curl https://api.github.com/repos/andrespalumbo311/bolina/releases/tags/${NIRI_TABLET_TAG}) && \
+    NIRI_TABLET_URL=$(echo "$NIRI_TABLET_ASSETS" | jq -r '.assets[] | select(.name == "niri-tablet-x86_64.tar.gz") | .browser_download_url') && \
+    NIRI_TABLET_SHA=$(echo "$NIRI_TABLET_ASSETS" | jq -r '.assets[] | select(.name == "niri-tablet-x86_64.tar.gz") | .digest' | cut -d: -f2) && \
+    curl -fsSL "$NIRI_TABLET_URL" -o /tmp/verify/niri-tablet.tar.gz && \
+    echo "$NIRI_TABLET_SHA  /tmp/verify/niri-tablet.tar.gz" | sha256sum --check && \
+    mkdir -p /tmp/niri-dist && \
+    tar -xz -C /tmp/niri-dist -f /tmp/verify/niri-tablet.tar.gz && \
     # findutils (uutils)
     FINDUTILS_ASSETS=$(gh_curl https://api.github.com/repos/uutils/findutils/releases/tags/${FINDUTILS_VERSION}) && \
     FINDUTILS_URL=$(echo "$FINDUTILS_ASSETS" | jq -r '.assets[] | select(.name == "findutils-x86_64-unknown-linux-musl.tar.xz") | .browser_download_url') && \
@@ -157,6 +167,10 @@ RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
 # STRATO 4: Ambiente Grafico, Wayland e Audio
 RUN --mount=type=cache,dst=/var/cache --mount=type=cache,dst=/var/log \
     /tmp/build_files/04-desktop-packages.sh
+
+# Sovrascrittura niri con build con patch touchscreen gesture + utility tablet
+COPY --from=builder /tmp/niri-dist/bin/ /usr/bin/
+COPY --from=builder /tmp/niri-dist/share/ /usr/share/
 
 # STRATO 5: Configurazione Servizi, Flatpak, os-release e Segregazione Utenti
 # NOTA: ARG SHA_HEAD_SHORT dichiarata qui per non invalidare gli strati pesanti precedenti ad ogni commit
