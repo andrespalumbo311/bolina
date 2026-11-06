@@ -16,6 +16,7 @@ on:
       - '.github/renovate.json5'
       - 'tools/**'
       - '.github/workflows/bolina-daemon.yml'
+      - '.github/workflows/niri-tablet.yml'
   schedule:
     - cron: '05 10 * * *'  # 10:05am UTC everyday
   push:
@@ -33,6 +34,7 @@ on:
       - '.github/renovate.json5'
       - 'tools/**'
       - '.github/workflows/bolina-daemon.yml'
+      - '.github/workflows/niri-tablet.yml'
   workflow_dispatch:
 
 env:

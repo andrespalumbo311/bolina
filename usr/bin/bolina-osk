@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Gestore tastiera virtuale mobile orientativa per Bolina OS
+set -euo pipefail
+
+BIN="/usr/bin/wvkbd-mobintl"
+OUTPUT="eDP-1"
+H_LANDSCAPE=250
+H_PORTRAIT=480
+
+height_for_orientation() {
+    local transform
+    transform=$(niri msg -j outputs 2>/dev/null | jq -r ".[\"$OUTPUT\"].logical.transform // \"normal\"")
+    case "$transform" in
+        "90" | "270" | "flipped-90" | "flipped-270")
+            echo "$H_PORTRAIT"
+            ;;
+        *)
+            echo "$H_LANDSCAPE"
+            ;;
+    esac
+}
+
+case "${1:-toggle}" in
+    toggle)
+        if pgrep -x "wvkbd-mobintl" >/dev/null; then
+            pkill -x "wvkbd-mobintl"
+        else
+            "$BIN" -H "$(height_for_orientation)" -L 240 >/dev/null 2>&1 &
+        fi
+        ;;
+    resize)
+        if pgrep -x "wvkbd-mobintl" >/dev/null; then
+            pkill -x "wvkbd-mobintl"
+            sleep 0.2
+            "$BIN" -H "$(height_for_orientation)" -L 240 >/dev/null 2>&1 &
+        fi
+        ;;
+    close)
+        pkill -x "wvkbd-mobintl" || true
+        ;;
+    *)
+        echo "Uso: $0 {toggle|resize|close}" >&2
+        exit 1
+        ;;
+esac

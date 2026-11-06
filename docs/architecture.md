@@ -30,7 +30,8 @@ bolina/
 ├── .github/workflows/
 │   ├── bolina-daemon.yml        # Dedicated Rust daemon release builder (triggered only on tools/ changes)
 │   ├── build.yml                # Main OCI container build and 64-layer rechunker
-│   └── build-disk.yml           # Bootable raw disk and ISO image generator
+│   ├── build-disk.yml           # Bootable raw disk and ISO image generator
+│   └── niri-tablet.yml          # Automated upstream sync & release pipeline (niri-tablet, wvkbd-mobintl, EasySetup)
 ├── build_files/                 # Modular build pipeline scripts
 │   ├── 01-copr.sh               # Repository bootstrapping (COPRs)
 │   ├── 02-kernel.sh             # CachyOS kernel replacement & Dracut initramfs
@@ -41,8 +42,11 @@ bolina/
 │   ├── greetd/                  # Display manager, hybrid biometric/PAM login
 │   ├── niri/                    # System fallback compositor configuration
 │   ├── polkit-1/rules.d/        # Polkit access rules (fprint, uupd, dms)
+│   ├── skel/.config/niri/dms/   # Modular Niri configurations (gestures.kdl, alttab, etc.)
 │   ├── systemd/                 # Background system & user units (scx, uupd, topgrade)
 │   └── wireplumber/             # Dynamic target routing & ALSA rules
+├── usr/
+│   └── bin/bolina-osk           # Orientation-aware on-screen keyboard (wvkbd) controller
 ├── docs/
 │   ├── architecture.md          # This document: system structure and directory layout
 │   └── historical-errors.md     # Living architectural memory of resolved base OS challenges
@@ -63,6 +67,7 @@ To enhance memory safety and execution performance across core operating system 
 - **Privilege Delegation (`sudo-rs`):** Integrated in `/usr/bin/sudo-rs` with symlinks providing drop-in `sudo`, `visudo`, and `sudoedit`.
 - **Network Time Daemon (`ntpd-rs`):** Replaces legacy `chrony` using the memory-safe Network Time Protocol daemon from the ISRG Prossimo project. Runs under an unprivileged `ntpd-rs` system service with minimal capabilities (`CAP_SYS_TIME`, `CAP_NET_BIND_SERVICE`).
 - **Bolina System Daemon (`bolina-daemon`):** Native multi-call daemon replacing legacy Python/Bash hardware scripts with subcommands: `autorotate`, `wallpaper`, `input-sync`, and `wacom-reset`.
+- **Touchscreen & Tablet Ecosystem (`niri-tablet`, `wvkbd`, `bolina-osk`):** Native touchscreen gesture pipeline powered by the `niri-tablet` 20-patch series (3-finger resize/carousel, 3-finger tap maximize, 4-finger overview/close/fullscreen, hold-swipe window relocation, single-finger edge swipes, client touch cancellation and touch point visualization). Integrated with `wvkbd-mobintl` via `/usr/bin/bolina-osk` and dynamically resized during physical rotation by `bolina-daemon autorotate`. Includes the GTK4 GUI configurator `niri-tablet-easysetup` and automated upstream tracking via `.github/workflows/niri-tablet.yml`.
 
 ---
 

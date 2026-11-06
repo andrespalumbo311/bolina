@@ -1,0 +1,142 @@
+---
+name: Upstream Sync & Build niri-tablet
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/niri-tablet.yml'
+  schedule:
+    # Controllo giornaliero automatico degli aggiornamenti upstream (04:00 UTC)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Forza la ricompilazione anche se già presente'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  check-and-build:
+    name: Check Upstream & Build Binaries
+    runs-on: ubuntu-26.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Check latest upstream release of niri-tablet
+        id: check_upstream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          UPSTREAM_TAG=$(curl -fsSL https://api.github.com/repos/GGEZUS/niri-tablet/releases/latest | jq -r '.tag_name')
+          echo "Latest upstream release: $UPSTREAM_TAG"
+          echo "tag=$UPSTREAM_TAG" >> "$GITHUB_OUTPUT"
+
+          OUR_TAG="niri-tablet-${UPSTREAM_TAG}"
+          echo "Target local tag: $OUR_TAG"
+          echo "our_tag=$OUR_TAG" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ inputs.force_rebuild }}" != "true" ] && gh release view "$OUR_TAG" >/dev/null 2>&1; then
+            echo "Release $OUR_TAG already exists and is up-to-date. Skipping compilation."
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "New upstream release detected or rebuild forced. Proceeding to build."
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Rust toolchain and build dependencies
+        if: steps.check_upstream.outputs.should_build == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libclang-dev libinput-dev libpango1.0-dev libcairo2-dev \
+            libglib2.0-dev libpipewire-0.3-dev libgbm-dev libseat-dev libudev-dev libpixman-1-dev \
+            libxkbcommon-dev wayland-protocols libwayland-dev libwayland-bin libdisplay-info-dev \
+            libgtk-4-dev libadwaita-1-dev patch make pkg-config
+          rustup set profile minimal
+          rustup toolchain install stable
+          rustup default stable
+
+      - name: Fetch and patch niri
+        if: steps.check_upstream.outputs.should_build == 'true'
+        run: |
+          TAG="${{ steps.check_upstream.outputs.tag }}"
+          git clone --depth 1 --branch "$TAG" https://github.com/GGEZUS/niri-tablet.git /tmp/niri-tablet
+
+          NIRI_BASE_TAG=$(grep -E '^_tag=' /tmp/niri-tablet/pkg/PKGBUILD | cut -d= -f2 | tr -d ' "' || true)
+          if [ -z "$NIRI_BASE_TAG" ]; then
+            NIRI_BASE_TAG=$(echo "$TAG" | sed -E 's/\.[0-9]+$//')
+          fi
+          echo "Cloning niri tag: $NIRI_BASE_TAG and applying patchset from $TAG"
+
+          git clone --depth 1 --branch "$NIRI_BASE_TAG" https://github.com/niri-wm/niri.git /tmp/niri
+          cd /tmp/niri
+          for patch in /tmp/niri-tablet/pkg/*.patch; do
+            echo "Applying $patch..."
+            patch -Np1 < "$patch"
+          done
+
+      - name: Compile patched niri
+        if: steps.check_upstream.outputs.should_build == 'true'
+        run: |
+          cd /tmp/niri
+          unset CFLAGS CXXFLAGS LDFLAGS RUSTFLAGS
+          cargo build --release --locked
+          mkdir -p /tmp/dist/bin /tmp/dist/share/applications /tmp/dist/share/icons
+          cp target/release/niri /tmp/dist/bin/niri
+
+      - name: Compile wvkbd (mobile layout)
+        if: steps.check_upstream.outputs.should_build == 'true'
+        run: |
+          git clone --depth 1 https://github.com/jjsullivan5196/wvkbd.git /tmp/wvkbd
+          cd /tmp/wvkbd
+          make wvkbd-mobintl
+          cp wvkbd-mobintl /tmp/dist/bin/wvkbd-mobintl
+
+      - name: Compile niri-tablet-easysetup GUI
+        if: steps.check_upstream.outputs.should_build == 'true'
+        run: |
+          cd /tmp/niri-tablet/niri-tablet-easysetup
+          cargo build --release --locked
+          cp target/release/niri-tablet-easysetup /tmp/dist/bin/niri-tablet-easysetup
+          cp data/com.github.ggezus.NiriTabletEasySetup.desktop /tmp/dist/share/applications/
+          cp -r data/icons/* /tmp/dist/share/icons/
+
+      - name: Package release assets
+        if: steps.check_upstream.outputs.should_build == 'true'
+        run: |
+          cd /tmp/dist
+          tar -czvf /tmp/niri-tablet-x86_64.tar.gz bin share
+          cd /tmp
+          sha256sum niri-tablet-x86_64.tar.gz > niri-tablet-x86_64.tar.gz.sha256
+
+      - name: Publish GitHub Release
+        if: steps.check_upstream.outputs.should_build == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OUR_TAG="${{ steps.check_upstream.outputs.our_tag }}"
+          TAG="${{ steps.check_upstream.outputs.tag }}"
+          gh release create "$OUR_TAG" /tmp/niri-tablet-x86_64.tar.gz /tmp/niri-tablet-x86_64.tar.gz.sha256 \
+            --title "niri-tablet ${TAG}" \
+            --notes "Automated release of niri-tablet with touchscreen gestures, wvkbd-mobintl, and EasySetup GUI"
+
+          if gh release view "niri-tablet-latest" >/dev/null 2>&1; then
+            gh release upload "niri-tablet-latest" /tmp/niri-tablet-x86_64.tar.gz /tmp/niri-tablet-x86_64.tar.gz.sha256 --clobber
+          else
+            gh release create "niri-tablet-latest" /tmp/niri-tablet-x86_64.tar.gz /tmp/niri-tablet-x86_64.tar.gz.sha256 \
+              --title "niri-tablet Latest" \
+              --notes "Latest rolling prebuilt binary of niri-tablet for Bolina OS"
+          fi
+
+      - name: Trigger main container build
+        if: steps.check_upstream.outputs.should_build == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run build.yml || echo "Build workflow trigger skipped"

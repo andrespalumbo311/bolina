@@ -39,6 +39,9 @@ pub fn set_niri_transform(target: &str, output_name: &str) {
     }
 
     let _ = t_dms.join();
+
+    // Se la tastiera virtuale OSK è aperta durante la rotazione fisica, ridimensionala
+    let _ = Command::new("bolina-osk").arg("resize").spawn();
 }
 
 pub fn run_autorotate(output_name: &str) -> Result<(), String> {
@@ -63,6 +66,7 @@ pub fn run_autorotate(output_name: &str) -> Result<(), String> {
                 );
                 tracker.set_forced("normal");
                 set_niri_transform("normal", output_name);
+                let _ = Command::new("bolina-osk").arg("close").spawn();
             }
             thread::sleep(Duration::from_secs(1));
             continue;

@@ -1,0 +1,38 @@
+// Touchscreen gestures configuration for Bolina OS (niri-tablet)
+// Documentation: https://github.com/GGEZUS/niri-tablet
+gestures {
+    // Punti di contatto visivi durante le gesture a più dita
+    show-touch-points "gestures"
+
+    // Multi-finger gestures: drag animati, tap, flick, hold-swipe
+    touchscreen-swipe {
+        // Conteggio dita base (3 dita)
+        fingers 3
+
+        // Ridimensionamento orizzontale 1:1 della finestra focalizzata
+        // (impostare su "move-view" per scorrere la vista tra colonne)
+        horizontal-swipe "resize-column"
+
+        // Azioni discrete al rilascio delle dita
+        tap             { maximize-column; }
+        tap-more        { toggle-overview; }
+        swipe-more-down { close-window; }
+        swipe-more-up   { fullscreen-window; }
+
+        // Tenuta ~400ms prima dello swipe: sposta finestra tra colonne o spazi di lavoro
+        hold {
+            left  { move-column-left; }
+            right { move-column-right; }
+            up    { move-window-to-workspace-up; }
+            down  { move-window-to-workspace-down; }
+        }
+    }
+
+    // Swipe con un solo dito dai bordi dello schermo
+    touchscreen-edge-swipe {
+        bottom { spawn "bolina-osk" "toggle"; }
+        top    { toggle-overview; }
+        left   { focus-column-left; }
+        right  { focus-column-right; }
+    }
+}
