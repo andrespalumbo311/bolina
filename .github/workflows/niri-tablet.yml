@@ -68,7 +68,7 @@ jobs:
           TAG="${{ steps.check_upstream.outputs.tag }}"
           git clone --depth 1 --branch "$TAG" https://github.com/GGEZUS/niri-tablet.git /tmp/niri-tablet
 
-          NIRI_BASE_TAG=$(grep -E '^_tag=' /tmp/niri-tablet/pkg/PKGBUILD | cut -d= -f2 | tr -d ' "' || true)
+          NIRI_BASE_TAG=$(grep -E '^_tag=' /tmp/niri-tablet/pkg/PKGBUILD | sed -E 's/.*_tag=([a-zA-Z0-9._-]+).*/\1/' || true)
           if [ -z "$NIRI_BASE_TAG" ]; then
             NIRI_BASE_TAG=$(echo "$TAG" | sed -E 's/\.[0-9]+$//')
           fi
@@ -122,9 +122,13 @@ jobs:
         run: |
           OUR_TAG="${{ steps.check_upstream.outputs.our_tag }}"
           TAG="${{ steps.check_upstream.outputs.tag }}"
-          gh release create "$OUR_TAG" /tmp/niri-tablet-x86_64.tar.gz /tmp/niri-tablet-x86_64.tar.gz.sha256 \
-            --title "niri-tablet ${TAG}" \
-            --notes "Automated release of niri-tablet with touchscreen gestures, wvkbd-mobintl, and EasySetup GUI"
+          if gh release view "$OUR_TAG" >/dev/null 2>&1; then
+            gh release upload "$OUR_TAG" /tmp/niri-tablet-x86_64.tar.gz /tmp/niri-tablet-x86_64.tar.gz.sha256 --clobber
+          else
+            gh release create "$OUR_TAG" /tmp/niri-tablet-x86_64.tar.gz /tmp/niri-tablet-x86_64.tar.gz.sha256 \
+              --title "niri-tablet ${TAG}" \
+              --notes "Automated release of niri-tablet with touchscreen gestures, wvkbd-mobintl, and EasySetup GUI"
+          fi
 
           if gh release view "niri-tablet-latest" >/dev/null 2>&1; then
             gh release upload "niri-tablet-latest" /tmp/niri-tablet-x86_64.tar.gz /tmp/niri-tablet-x86_64.tar.gz.sha256 --clobber
