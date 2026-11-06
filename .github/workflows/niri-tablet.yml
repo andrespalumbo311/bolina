@@ -59,7 +59,7 @@ jobs:
             clang libclang-dev libinput-dev libpango1.0-dev libcairo2-dev \
             libglib2.0-dev libpipewire-0.3-dev libgbm-dev libseat-dev libudev-dev libpixman-1-dev \
             libxkbcommon-dev wayland-protocols libwayland-dev libwayland-bin libdisplay-info-dev \
-            libgtk-4-dev libadwaita-1-dev patch make pkg-config
+            libgtk-4-dev libadwaita-1-dev libgdk-pixbuf-2.0-dev patch make pkg-config
           rustup set profile minimal
           rustup toolchain install stable
           rustup default stable
