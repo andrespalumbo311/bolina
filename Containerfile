@@ -12,7 +12,7 @@ ARG NIRI_TABLET_TAG="niri-tablet-latest"
 # renovate: datasource=github-releases depName=starship/starship
 ARG STARSHIP_VERSION="v1.27.0"
 # renovate: datasource=github-releases depName=topgrade-rs/topgrade
-ARG TOPGRADE_VERSION="v17.15.0"
+ARG TOPGRADE_VERSION="v17.16.0"
 # renovate: datasource=github-releases depName=ublue-os/uupd
 ARG UUPD_VERSION="v1.5.7"
 # renovate: datasource=github-releases depName=trifectatechfoundation/sudo-rs
