@@ -52,6 +52,21 @@ pub fn strip_keyboard_block(text: &str) -> String {
     result
 }
 
+pub fn strip_focus_follows_mouse(text: &str) -> String {
+    let mut lines = Vec::new();
+    for line in text.lines() {
+        if line.trim_start().starts_with("focus-follows-mouse") {
+            continue;
+        }
+        lines.push(line);
+    }
+    let mut result = lines.join("\n");
+    if text.ends_with('\n') {
+        result.push('\n');
+    }
+    result
+}
+
 pub fn default_config_dir() -> PathBuf {
     crate::common::home_dir().join(".config").join("niri").join("dms")
 }
@@ -78,6 +93,11 @@ pub fn sync_input_kdl(config_dir: &Path) -> Result<bool, String> {
     // Avoid duplicate keyboard block if input.kdl already contains keyboard configuration
     if content.contains("keyboard {") {
         hw_content = strip_keyboard_block(&hw_content);
+    }
+
+    // Avoid duplicate focus-follows-mouse if input.kdl already contains it
+    if content.contains("focus-follows-mouse") {
+        hw_content = strip_focus_follows_mouse(&hw_content);
     }
 
     let last_brace = match content.rfind('}') {
@@ -138,6 +158,23 @@ tablet {
         let stripped = strip_keyboard_block(hw_kdl);
         assert!(!stripped.contains("keyboard"));
         assert!(!stripped.contains("de_custom"));
+        assert!(stripped.contains("touch {"));
+        assert!(stripped.contains("tablet {"));
+    }
+
+    #[test]
+    fn test_strip_focus_follows_mouse() {
+        let hw_kdl = r#"
+touch {
+    map-to-output "eDP-1"
+}
+focus-follows-mouse max-scroll-amount="0%"
+tablet {
+    map-to-output "eDP-1"
+}
+"#;
+        let stripped = strip_focus_follows_mouse(hw_kdl);
+        assert!(!stripped.contains("focus-follows-mouse"));
         assert!(stripped.contains("touch {"));
         assert!(stripped.contains("tablet {"));
     }
