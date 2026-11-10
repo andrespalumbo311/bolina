@@ -21,8 +21,6 @@ ARG SUDO_RS_VERSION="v0.2.15"
 ARG COREUTILS_VERSION="0.12.0"
 # renovate: datasource=github-releases depName=uutils/findutils
 ARG FINDUTILS_VERSION="0.11.0"
-# renovate: datasource=github-releases depName=google-antigravity/antigravity-cli
-ARG AGY_VERSION="1.5.4"
 # renovate: datasource=github-releases depName=feschber/lan-mouse
 ARG LAN_MOUSE_VERSION="v0.11.0"
 # renovate: datasource=github-releases depName=ryanoasis/nerd-fonts
@@ -74,13 +72,6 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     curl -fsSL "$COREUTILS_URL" -o /tmp/verify/coreutils.tar.gz && \
     echo "$COREUTILS_SHA  /tmp/verify/coreutils.tar.gz" | sha256sum --check && \
     tar -xz -C /tmp/bin -f /tmp/verify/coreutils.tar.gz --strip-components=1 && \
-    # antigravity-cli
-    AGY_ASSETS=$(gh_curl https://api.github.com/repos/google-antigravity/antigravity-cli/releases/tags/${AGY_VERSION}) && \
-    AGY_URL=$(echo "$AGY_ASSETS" | jq -r '.assets[] | select(.name == "agy_cli_linux_x64.tar.gz") | .browser_download_url') && \
-    AGY_SHA=$(echo "$AGY_ASSETS" | jq -r '.assets[] | select(.name == "agy_cli_linux_x64.tar.gz") | .digest' | cut -d: -f2) && \
-    curl -fsSL "$AGY_URL" -o /tmp/verify/agy.tar.gz && \
-    echo "$AGY_SHA  /tmp/verify/agy.tar.gz" | sha256sum --check && \
-    tar -xz -C /tmp/bin -f /tmp/verify/agy.tar.gz antigravity && \
     # lan-mouse
     LAN_MOUSE_ASSETS=$(gh_curl https://api.github.com/repos/feschber/lan-mouse/releases/tags/${LAN_MOUSE_VERSION}) && \
     LAN_MOUSE_URL=$(echo "$LAN_MOUSE_ASSETS" | jq -r '.assets[] | select(.name == "lan-mouse-linux-x86_64") | .browser_download_url') && \
@@ -140,7 +131,6 @@ COPY --from=builder /tmp/bin/sudoedit /usr/bin/sudoedit-rs
 COPY --from=builder /tmp/bin/coreutils /usr/bin/uutils-coreutils
 COPY --from=builder /tmp/bin/find /usr/bin/uutils-find
 COPY --from=builder /tmp/bin/xargs /usr/bin/uutils-xargs
-COPY --from=builder /tmp/bin/antigravity /usr/bin/antigravity
 COPY --from=builder /tmp/bin/lan-mouse /usr/bin/lan-mouse
 COPY --from=builder /tmp/fonts /usr/share/fonts/JetBrainsMono
 COPY --from=builder /tmp/fish/bass.fish /usr/share/fish/vendor_functions.d/bass.fish
