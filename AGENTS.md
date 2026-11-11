@@ -1,42 +1,32 @@
-# AI Agent Guidelines & Operating Rules: Bolina Base OS
+# AGENTS.md — Bolina Base OS Operational Playbook
 
-This repository defines **Bolina**, a generic cloud-native Fedora Atomic base image (bootc) featuring Niri Wayland compositor, DankMaterialShell, memory-safe sudo-rs, and CachyOS performance enhancements, built as an OCI container via GitHub Actions. Device-specific overlays (e.g. ThinkPad X390 Yoga) belong in downstream fleet repositories (`bolina-fleet`).
+Playbook for the public, hardware-agnostic Fedora Atomic base image (`bolina`).
 
-## Operating Context & Constraints
-- **Hardware Target:** Generic x86_64 cloud-native workstation/laptop baseline. Device-specific quirks (ThinkPad X390) are isolated in `bolina-fleet`.
-- **Host System:** Fedora Atomic / ublue (pure bootc).
-- **Filesystem Immutability:** `/usr` is read-only. System updates and deployments are managed exclusively through **bootc** (`bootc upgrade`). Never attempt host-level package layering or hot-patch system directories directly on the host unless explicitly ordered.
-- **Persistence Model:**
-  - System changes are codified in `Containerfile`, modular scripts in `build_files/`, or runtime configs in `/etc` and `/usr/lib/tmpfiles.d/`.
-  - Applications and user tools belong in isolated runtimes: Flatpak, Distrobox, or Homebrew.
+## 1. Scope & Architectural Reference
+- **Scope**: Generic cloud-native bootc base image (Niri, DMS, sudo-rs, CachyOS kernel). All device-specific hardware configs belong strictly downstream in `bolina-fleet`.
+- **Architectural Reference**: Core architecture, package layout, directory trees, and Rust tooling matrices reside in [`docs/architecture.md`](file:///var/home/andres/Documents/myublue/bolina/docs/architecture.md).
 
-## Mandatory Operational Rules
+---
 
-### 1. Default Diagnostic Mode (Read-Only)
-- When investigating an issue, bug, or unexpected behavior, **stop at the diagnosis**.
-- **Allowed in diagnosis:** Passive, read-only data collection (`journalctl`, `systemctl --user`, `busctl`, `cat`, `grep`, config inspection).
-- **Forbidden without explicit confirmation:** Modifying files, staging git commits, applying patches, or running mutating system commands.
-- Wait for explicit user authorization (e.g. "procedi a risolvere") before applying fixes.
+## 2. Operational Rules for Autonomous Agents
 
-### 2. Operational Memory Protocol ([historical-errors.md](file:///var/home/andres/Documents/myublue/bolina/docs/historical-errors.md))
-- **Mandatory Consultation:** Before planning or applying architectural changes (compositor, portals, audio, systemd, bootc, pam, kernel/dracut), consult the living library in [docs/historical-errors.md](file:///var/home/andres/Documents/myublue/bolina/docs/historical-errors.md) to avoid known failure modes.
-- **Self-Update Post-Fix:** Once a fix is verified and working, document the new error class or refine an existing preventive pattern in [docs/historical-errors.md](file:///var/home/andres/Documents/myublue/bolina/docs/historical-errors.md).
-- **Technical Abstraction:** Always state the root cause and preventive action in general, abstract terms (e.g. D-Bus portal activation, FUSE unmount race, OCI layer non-determinism) so it serves as a reusable pattern.
+### Diagnostic Mode (Read-Only by Default)
+- Stop at passive diagnosis (`journalctl`, `systemctl --user`, `busctl`, configuration review).
+- Do not modify files, stage git commits, or run mutating commands without explicit user authorization.
 
-### 3. Live Session Validation
-- For any changes affecting Wayland sessions (Niri), greeters (`greetd`), portals (`xdg-desktop-portal`), audio (PipeWire/WirePlumber), or user daemons, validate the runtime state live (e.g. with `busctl`, `systemctl --user status`, `pw-cli`, `gsettings`) to verify interfaces and sockets before considering the task complete.
+### Operational Memory Protocol
+- Consult [`docs/historical-errors.md`](file:///var/home/andres/Documents/myublue/bolina/docs/historical-errors.md) before implementing changes to compositors, portals, audio, systemd, bootc, PAM, or initramfs.
+- Document new error patterns immediately post-fix using the standard 3-column table format (`Error Class` | `Root Cause (Abstract)` | `Preventive Action`).
 
-### 4. Build Pipeline & Package Integrity
-- Verify exact package names (e.g. with `dnf list` or repo queries) before updating `build_files/`.
-- Maintain deterministic build layers: pin versions using `ARG` with Renovate annotations, avoid `date` timestamps, and preserve `.keep` files in empty directories.
+### Build Pipeline & Package Integrity
+- Verify exact package identifiers (`dnf list` or repo queries) before updating `build_files/`.
+- Ensure deterministic layers: pin versions with Renovate annotations, avoid `date` timestamps, and preserve `.keep` files in tracked directories.
+- Respect filesystem immutability: `/usr` is read-only. Codify system changes in `Containerfile`, `build_files/`, `/etc/`, or `tmpfiles.d/`.
 
-### 5. Post-Work Commit & Push Protocol
-- Upon concluding any verified modification, bug fix, or dependency update, always stage all repository changes, commit using conventional commit semantics (`feat:`, `fix:`, `chore:`, `docs:`), and push immediately to GitHub (`git push origin main`). Never leave uncommitted or unpushed work at the end of a session.
+### Tooling & Language Policies
+- **Rust First**: Build background daemons and system tools in Rust under `tools/`. Compile during CI and install statically linked binaries to `/usr/bin/`.
+- **Rust Drop-in Policy**: Integrate only drop-in replacements with 100% verified POSIX/GNU CLI parity (`uutils-coreutils`, `uutils-findutils`, `sudo-rs`, `ntpd-rs`). Exclude WIP or incomplete rewrites (`diffutils`, `sed`, `grep`, `tar`).
 
-### 6. Language Preference for System Daemons & Helpers
-- Prefer Rust over Python for all custom system tooling, background daemons, hardware sensors, and session helpers. Rust provides native execution speed, zero runtime overhead, memory safety, and standalone self-contained binaries that do not require host Python libraries. Reusable tools are developed under `tools/` and compiled during OCI image construction or CI workflows.
-
-### 7. Rust Drop-in Replacement Policy
-- Only integrate drop-in replacements that have demonstrated mature, 100% complete POSIX/GNU CLI parity (such as `uutils-coreutils`, `uutils-findutils`, `sudo-rs`, `ntpd-rs`).
-- Never blindly integrate WIP, incomplete, or experimental utility rewrites (such as `diffutils`, `sed`, `grep`, `tar`) based on arbitrary SemVer tags or release availability. Candidate tools must undergo explicit manual verification or official distribution packaging (e.g. Fedora stable repositories) before being exposed in system paths.
-
+### Session Validation & Commit Protocol
+- Validate Wayland/desktop changes live via `busctl`, `systemctl --user status`, `pw-cli`, or `gsettings`.
+- Stage, commit with conventional commit messages (`feat:`, `fix:`, `chore:`, `docs:`), and push immediately (`git push origin main`).

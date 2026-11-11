@@ -178,7 +178,7 @@ layout {
 spawn-sh-at-startup "$HOME/.config/niri/scripts/init-keyring.sh"
 spawn-at-startup "dbus-update-activation-environment" "--all"
 spawn-at-startup "dms" "run"
-spawn-sh-at-startup "[ -f $HOME/.config/niri/scripts/auto-rotate.sh ] && exec $HOME/.config/niri/scripts/auto-rotate.sh"
+spawn-at-startup "/usr/bin/bolina-daemon" "autorotate"
 spawn-sh-at-startup "[ -f $HOME/.config/niri/scripts/wallpaper_watcher.sh ] && exec $HOME/.config/niri/scripts/wallpaper_watcher.sh"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:

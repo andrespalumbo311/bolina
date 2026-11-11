@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub fn find_accelerometer() -> PathBuf {
+pub fn find_accelerometer() -> Option<PathBuf> {
     let mut candidates = Vec::new();
 
     if let Ok(entries) = fs::read_dir("/sys/bus/iio/devices") {
@@ -26,19 +26,33 @@ pub fn find_accelerometer() -> PathBuf {
     candidates.sort();
 
     if candidates.is_empty() {
-        return PathBuf::from("/sys/bus/iio/devices/iio:device0");
+        return None;
     }
 
     // Prefer screen sensor on X390 Yoga (HID-SENSOR-200073.12.auto)
     for dev in &candidates {
         if let Ok(canon) = fs::canonicalize(dev) {
             if canon.to_string_lossy().contains("HID-SENSOR-200073.12.auto") {
-                return dev.clone();
+                return Some(dev.clone());
             }
         }
     }
 
-    candidates[0].clone()
+    Some(candidates[0].clone())
+}
+
+pub fn find_base_accelerometer() -> Option<PathBuf> {
+    if let Ok(entries) = fs::read_dir("/sys/bus/iio/devices") {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if let Ok(canon) = fs::canonicalize(&path) {
+                if canon.to_string_lossy().contains("HID-SENSOR-200073.17.auto") {
+                    return Some(path);
+                }
+            }
+        }
+    }
+    None
 }
 
 pub fn read_accel_raw(sensor_dir: &Path) -> Option<(i64, i64, i64)> {
