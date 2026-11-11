@@ -71,6 +71,9 @@ enum WallpaperCommands {
         #[arg(short, long, default_value = "eDP-1")]
         output: String,
     },
+
+    /// Launch Xournal++ desktop tasks editor for ~/Pictures/task_wallpaper.xopp
+    Edit,
 }
 
 #[derive(Args)]
@@ -114,6 +117,12 @@ fn main() {
             WallpaperCommands::Watch { output } => {
                 if let Err(e) = wallpaper::watcher::run_watcher(&output) {
                     eprintln!("[watcher] Fatal: {}", e);
+                    std::process::exit(1);
+                }
+            }
+            WallpaperCommands::Edit => {
+                if let Err(e) = wallpaper::watcher::run_edit() {
+                    eprintln!("[wallpaper] Error: {}", e);
                     std::process::exit(1);
                 }
             }

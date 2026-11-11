@@ -6,9 +6,6 @@ use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
-#[allow(dead_code)]
-pub const ORIENTATIONS: [&str; 4] = ["normal", "90", "180", "270"];
-
 pub fn normalize_orientation(raw: &str) -> &str {
     let s = raw.trim().to_lowercase();
     let s = s.trim_start_matches('_');

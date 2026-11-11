@@ -83,9 +83,44 @@ pub fn process_xopp_update(output_name: &str) {
     }
 }
 
+pub fn run_edit() -> Result<(), String> {
+    let xopp = xopp_file();
+    if let Some(parent) = xopp.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+
+    let desktop_entry = "/var/lib/flatpak/exports/share/applications/com.github.xournalpp.xournalpp.desktop";
+    let status = if std::path::Path::new(desktop_entry).is_file() {
+        Command::new("gio")
+            .args(["launch", desktop_entry, xopp.to_str().unwrap_or("")])
+            .spawn()
+    } else {
+        Command::new("flatpak")
+            .args([
+                "run",
+                "com.github.xournalpp.xournalpp",
+                xopp.to_str().unwrap_or(""),
+            ])
+            .spawn()
+    };
+
+    match status {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            // Fallback to xdg-open
+            Command::new("xdg-open")
+                .arg(xopp.to_str().unwrap_or(""))
+                .spawn()
+                .map_err(|e2| format!("Failed to launch Xournal++ editor: {} / {}", e, e2))?;
+            Ok(())
+        }
+    }
+}
+
 pub fn run_watcher(output_name: &str) -> Result<(), String> {
     let _lock = acquire_lock(&watcher_lock())?;
     let pictures = pictures_dir();
+    let _ = fs::create_dir_all(&pictures);
     if !pictures.is_dir() {
         return Err(format!("Directory missing: {:?}", pictures));
     }
