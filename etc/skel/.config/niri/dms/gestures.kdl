@@ -28,9 +28,10 @@ gestures {
         }
     }
 
-    // Swipe con un solo dito dai bordi dello schermo (bordo superiore escluso per permettere il tocco sulla barra DMS)
+    // Swipe con un solo dito dai bordi dello schermo
     touchscreen-edge-swipe {
         bottom { spawn "bolina-osk" "toggle"; }
+        top    { toggle-overview; }
         left   { focus-column-left; }
         right  { focus-column-right; }
     }
