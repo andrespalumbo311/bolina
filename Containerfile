@@ -1,6 +1,6 @@
 # STAGE 1: Download utility custom
 # Verify layer cache performance on GHCR build-cache tag
-FROM ghcr.io/ublue-os/base-main:latest@sha256:95f951d7d1ab3d4009bcd0a83b2a262a9ebd0e3a9410c1f214016df30281f755 AS builder
+FROM ghcr.io/ublue-os/base-main:latest@sha256:e34d8ca032fe3e6033782d8eef9f5745bb5b13b3d7a1f9ed75c532c3f4284291 AS builder
 
 ARG GITHUB_TOKEN=""
 
@@ -118,7 +118,7 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     rm -rf /tmp/verify
 
 # STAGE 2: Immagine Finale
-FROM ghcr.io/ublue-os/base-main:latest@sha256:95f951d7d1ab3d4009bcd0a83b2a262a9ebd0e3a9410c1f214016df30281f755
+FROM ghcr.io/ublue-os/base-main:latest@sha256:e34d8ca032fe3e6033782d8eef9f5745bb5b13b3d7a1f9ed75c532c3f4284291
 
 # Copia dei binari custom dallo stage di build
 COPY --from=builder /tmp/bin/bolina-daemon /usr/bin/bolina-daemon
