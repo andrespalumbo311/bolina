@@ -23,6 +23,8 @@ ARG COREUTILS_VERSION="0.12.0"
 ARG FINDUTILS_VERSION="0.11.0"
 # renovate: datasource=github-releases depName=feschber/lan-mouse
 ARG LAN_MOUSE_VERSION="v0.11.0"
+# renovate: datasource=github-releases depName=Foxboron/ssh-tpm-agent
+ARG SSH_TPM_AGENT_VERSION="v0.9.0"
 # renovate: datasource=github-releases depName=ryanoasis/nerd-fonts
 ARG NERD_FONTS_VERSION="v3.5.1"
 ARG BASS_COMMIT="79b62958ecf4e87334f24d6743e5766475bcf4d0"
@@ -79,6 +81,17 @@ RUN mkdir -p /tmp/verify /tmp/bin && \
     curl -fsSL "$LAN_MOUSE_URL" -o /tmp/verify/lan-mouse && \
     echo "$LAN_MOUSE_SHA  /tmp/verify/lan-mouse" | sha256sum --check && \
     mv /tmp/verify/lan-mouse /tmp/bin/lan-mouse && \
+    # ssh-tpm-agent
+    SSH_TPM_ASSETS=$(gh_curl https://api.github.com/repos/Foxboron/ssh-tpm-agent/releases/tags/${SSH_TPM_AGENT_VERSION}) && \
+    SSH_TPM_URL=$(echo "$SSH_TPM_ASSETS" | jq -r '.assets[] | select(.name | endswith("-linux-amd64.tar.gz")) | .browser_download_url') && \
+    SSH_TPM_SHA=$(echo "$SSH_TPM_ASSETS" | jq -r '.assets[] | select(.name | endswith("-linux-amd64.tar.gz")) | .digest' | cut -d: -f2) && \
+    curl -fsSL "$SSH_TPM_URL" -o /tmp/verify/ssh-tpm-agent.tar.gz && \
+    echo "$SSH_TPM_SHA  /tmp/verify/ssh-tpm-agent.tar.gz" | sha256sum --check && \
+    tar -xz -C /tmp/bin -f /tmp/verify/ssh-tpm-agent.tar.gz --strip-components=1 \
+        ssh-tpm-agent/ssh-tpm-agent \
+        ssh-tpm-agent/ssh-tpm-keygen \
+        ssh-tpm-agent/ssh-tpm-add \
+        ssh-tpm-agent/ssh-tpm-hostkeys && \
     # bolina-daemon
     BOLINA_DAEMON_ASSETS=$(gh_curl https://api.github.com/repos/andrespalumbo311/bolina/releases/tags/${BOLINA_DAEMON_TAG}) && \
     BOLINA_DAEMON_URL=$(echo "$BOLINA_DAEMON_ASSETS" | jq -r '.assets[] | select(.name == "bolina-daemon-x86_64.tar.gz") | .browser_download_url') && \
@@ -132,6 +145,10 @@ COPY --from=builder /tmp/bin/coreutils /usr/bin/uutils-coreutils
 COPY --from=builder /tmp/bin/find /usr/bin/uutils-find
 COPY --from=builder /tmp/bin/xargs /usr/bin/uutils-xargs
 COPY --from=builder /tmp/bin/lan-mouse /usr/bin/lan-mouse
+COPY --from=builder /tmp/bin/ssh-tpm-agent /usr/bin/ssh-tpm-agent
+COPY --from=builder /tmp/bin/ssh-tpm-keygen /usr/bin/ssh-tpm-keygen
+COPY --from=builder /tmp/bin/ssh-tpm-add /usr/bin/ssh-tpm-add
+COPY --from=builder /tmp/bin/ssh-tpm-hostkeys /usr/bin/ssh-tpm-hostkeys
 COPY --from=builder /tmp/fonts /usr/share/fonts/JetBrainsMono
 COPY --from=builder /tmp/fish/bass.fish /usr/share/fish/vendor_functions.d/bass.fish
 COPY --from=builder /tmp/fish/__bass.py /usr/share/fish/vendor_functions.d/__bass.py

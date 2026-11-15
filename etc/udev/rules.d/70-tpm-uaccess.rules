@@ -1,0 +1,2 @@
+# Grant active local seat user access to TPM 2.0 resource manager (/dev/tpmrm*)
+KERNEL=="tpmrm[0-9]*", TAG+="uaccess"
