@@ -18,7 +18,7 @@ ARG UUPD_VERSION="v1.5.7"
 # renovate: datasource=github-releases depName=trifectatechfoundation/sudo-rs
 ARG SUDO_RS_VERSION="v0.2.15"
 # renovate: datasource=github-releases depName=uutils/coreutils
-ARG COREUTILS_VERSION="0.12.0"
+ARG COREUTILS_VERSION="0.13.0"
 # renovate: datasource=github-releases depName=uutils/findutils
 ARG FINDUTILS_VERSION="0.11.0"
 # renovate: datasource=github-releases depName=feschber/lan-mouse
