@@ -98,6 +98,10 @@ rm -rf /var/lib/dnf \
        /var/log/dnf* \
        /usr/lib/sysimage/libdnf5/transaction_history* 2>/dev/null || true
 
+# Coerenza rendering font: grayscale antialiasing per HiDPI, fractional scaling e rotazione tablet
+ln -sf ../../../usr/share/fontconfig/conf.avail/10-sub-pixel-none.conf /etc/fonts/conf.d/10-sub-pixel-none.conf
+rm -f /etc/fonts/conf.d/11-lcdfilter-default.conf
+
 # Generazione deterministica della cache fontconfig di sistema (evita desync mtime a epoch 0 per emoji e font)
 SOURCE_DATE_EPOCH=1700000000 fc-cache -s -f
 # Rimozione CACHEDIR.TAG per impedire al rechunker bootc di svuotare la cache di sistema
